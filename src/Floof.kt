@@ -3,9 +3,10 @@ import javafx.scene.shape.Rectangle
 
 class Floof(x: Int, y: Int, size: Int) : Rectangle() {
 
-    var saturation : Double = 0.5
-//    var color : Color = Color.hsb(0.0, 0.0, 0.89) // Replaced Color.rgb(229, 228, 226)
-    var color : Color = Color.hsb(0.0, 0.0, saturation) // Replaced Color.rgb(100, 100, 100)
+    private var saturation: Double = 0.5
+
+    //    var color : Color = Color.hsb(0.0, 0.0, 0.89) // Replaced Color.rgb(229, 228, 226)
+    private var color: Color = Color.hsb(0.0, 0.0, saturation) // Replaced Color.rgb(100, 100, 100)
 
     init {
         this.width = size.toDouble()

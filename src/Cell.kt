@@ -3,7 +3,7 @@ import javafx.scene.shape.Rectangle
 
 class Cell(x: Int, y: Int, size: Int, terrainType : TerrainType) : Rectangle() {
 
-    var food: Int = 0
+    private var food: Int = 0
 
     init {
         this.width = size.toDouble()

@@ -8,15 +8,14 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
-
 class Main : Application() {
     private var selectedTerrainType: TerrainType = TerrainType.FOREST
     private var selectedBrush: BrushType = BrushType.TERRAIN
-    val HEIGHT = 50
-    val WIDTH = 50
-    val CELL_SIZE = 10
-    val cells: MutableMap<Pair<Int, Int>, Cell> = mutableMapOf()
-    val floofs: MutableMap<Pair<Int, Int>, Floof> = mutableMapOf()
+    private val height = 50
+    private val width = 50
+    private val cellSize = 10
+    private val cells: MutableMap<Pair<Int, Int>, Cell> = mutableMapOf()
+    private val floofs: MutableMap<Pair<Int, Int>, Floof> = mutableMapOf()
 
     override fun start(stage: Stage) {
         val root = HBox()
@@ -44,11 +43,11 @@ class Main : Application() {
                 else -> TerrainType.EMPTY
             }
         }
-        val brushSize = Slider(1.0, 10.0, 1.0)
+        val brushSize = Slider(1.0, ((height + width) / 10).toDouble(), 1.0)
         val controls = VBox(startBtn, clearBtn, switch, choiceBox, brushSize)
-        for (i in 0..WIDTH) {
-            for (j in 0..HEIGHT) {
-                val cell = Cell(i, j, CELL_SIZE, TerrainType.EMPTY)
+        for (i in 0..width) {
+            for (j in 0..height) {
+                val cell = Cell(i, j, cellSize, TerrainType.EMPTY)
                 cells[Pair(i, j)] = cell
                 field.children.add(cell)
             }
@@ -56,9 +55,12 @@ class Main : Application() {
         field.setOnMouseClicked { e ->
             handleMouseClick(e.x, e.y, brushSize.value.toInt(), field)
         }
+        field.setOnMouseDragged { e ->
+            handleMouseClick(e.x, e.y, brushSize.value.toInt(), field)
+        }
         root.children.add(field)
         root.children.add(controls)
-        val scene = Scene(root, (WIDTH * CELL_SIZE).toDouble() * 1.2, (HEIGHT * CELL_SIZE + CELL_SIZE).toDouble())
+        val scene = Scene(root, (width * cellSize).toDouble() * 1.2, (height * cellSize + cellSize).toDouble())
         scene.setOnKeyTyped { println("Something is done") }
         stage.scene = scene
         stage.title = "Hello World!"
@@ -68,8 +70,8 @@ class Main : Application() {
     }
 
     private fun handleMouseClick(mouseX: Double, mouseY: Double, brushSize: Int, group: Group) {
-        val x = (mouseX / CELL_SIZE).toInt()
-        val y = (mouseY / CELL_SIZE).toInt()
+        val x = (mouseX / cellSize).toInt()
+        val y = (mouseY / cellSize).toInt()
         val radius = brushSize - 1 // Set the radius of the circle
         when (selectedBrush) {
             BrushType.TERRAIN -> updateTerrain(x, y, radius, selectedTerrainType)
@@ -79,7 +81,7 @@ class Main : Application() {
     }
 
     private fun updateFloof(x: Int, y: Int, group: Group) {
-        val floof = Floof(x, y, CELL_SIZE)
+        val floof = Floof(x, y, cellSize)
         floofs[Pair(x, y)] = floof
         group.children.add(floof)
     }
@@ -96,12 +98,10 @@ class Main : Application() {
             }
         }
     }
-
 }
 
 enum class BrushType {
     TERRAIN,
     FLOOF,
     ERASER
-
 }
