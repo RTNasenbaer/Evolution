@@ -14,7 +14,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx-swt.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx-swt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -23,7 +23,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.base.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.base.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -32,7 +32,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.controls.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.controls.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -41,7 +41,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.fxml.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.fxml.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -50,7 +50,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.graphics.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.graphics.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -59,7 +59,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.media.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.media.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -68,7 +68,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.swing.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.swing.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -77,7 +77,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.13/lib/javafx.web.jar!/" />
+          <root url="jar://$MODULE_DIR$/../javafx-sdk-17.0.12/lib/javafx.web.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
