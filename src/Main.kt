@@ -9,11 +9,12 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
 class Main : Application() {
+    private val scale = 5
     private var selectedTerrainType: TerrainType = TerrainType.FOREST
     private var selectedBrush: BrushType = BrushType.TERRAIN
-    private val height = 50
-    private val width = 50
-    private val cellSize = 10
+    private val height = 50 / scale
+    private val width = 50 / scale
+    private val cellSize = 20 * scale
     private val cells: MutableMap<Pair<Int, Int>, Cell> = mutableMapOf()
     private val floofs: MutableMap<Pair<Int, Int>, Floof> = mutableMapOf()
 
@@ -31,18 +32,10 @@ class Main : Application() {
             }
             switch.text = selectedBrush.name
         }
-        val choiceBox: ChoiceBox<String> = ChoiceBox<String>()
-        choiceBox.items.addAll("Forest", "Tundra", "Plains", "Desert")
-        choiceBox.value = "Forest"
-        choiceBox.setOnAction {
-            selectedTerrainType = when (choiceBox.value) {
-                "Forest" -> TerrainType.FOREST
-                "Tundra" -> TerrainType.TUNDRA
-                "Plains" -> TerrainType.PLAINS
-                "Desert" -> TerrainType.DESERT
-                else -> TerrainType.EMPTY
-            }
-        }
+        val choiceBox: ChoiceBox<TerrainType> = ChoiceBox<TerrainType>()
+        choiceBox.items.addAll(TerrainType.FOREST, TerrainType.TUNDRA, TerrainType.PLAINS, TerrainType.DESERT)
+        choiceBox.value = selectedTerrainType
+        choiceBox.setOnAction { selectedTerrainType = choiceBox.value }
         val brushSize = Slider(1.0, ((height + width) / 10).toDouble(), 1.0)
         val controls = VBox(startBtn, clearBtn, switch, choiceBox, brushSize)
         for (i in 0..width) {
@@ -81,7 +74,7 @@ class Main : Application() {
     }
 
     private fun updateFloof(x: Int, y: Int, group: Group) {
-        val floof = Floof(x, y, cellSize)
+        val floof = Floof(x, y, scale, 0.5, cells)
         floofs[Pair(x, y)] = floof
         group.children.add(floof)
     }
