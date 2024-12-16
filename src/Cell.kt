@@ -1,9 +1,13 @@
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
-class Cell(x: Int, y: Int, size: Int, terrainType : TerrainType) : Rectangle() {
+class Cell(x: Int, y: Int, size: Int, terrainType: TerrainType) : Rectangle() {
 
-    private var food: Int = 0
+    var food: Int = 0
+    val regenAt: Int = 5
+    var regen: Int = 0
+    var regenEnabled: Boolean = false
+    var currentTerrain: TerrainType = terrainType
 
     init {
         this.width = size.toDouble()
@@ -16,12 +20,41 @@ class Cell(x: Int, y: Int, size: Int, terrainType : TerrainType) : Rectangle() {
     }
 
     fun updateTerrainType(terrainType: TerrainType) {
-        val colorOverride: Color = Color.hsb(terrainType.ground.hue, terrainType.ground.saturation, terrainType.ground.brightness  - (Math.random() * 0.1))
+        currentTerrain = terrainType
+        val colorOverride: Color = Color.hsb(
+            terrainType.ground.hue,
+            terrainType.ground.saturation,
+            terrainType.ground.brightness - (Math.random() * 0.1)
+        )
         fill = colorOverride
+        food = 0
         if (Math.random() < terrainType.foodProbability) {
             food = (Math.random() * terrainType.foodMax).toInt()
-            fill = Color.hsb(270.0, 0.50, food.toDouble()/100) // Replaced Color.rgb(153, 102, 204)
+            fill = Color.hsb(270.0, 0.50, 1.0 - (food.toDouble() / 100)) // Replaced Color.rgb(153, 102, 204)
         }
+    }
+
+    fun update() {
+        if (regenEnabled) if (food == 0) if (regen == regenAt) {
+            regen = 0
+            if (Math.random() < currentTerrain.foodProbability) {
+                food = (Math.random() * currentTerrain.foodMax).toInt()
+                fill = Color.hsb(270.0, 0.50, 1.0 - (food.toDouble() / 100)) // Replaced Color.rgb(153, 102, 204)
+                regenEnabled = false
+            }
+        } else regen++
+    }
+
+    fun eaten(): Int {
+        val eaten = food
+        food = 0
+        regenEnabled = true
+        fill = Color.hsb(
+            currentTerrain.ground.hue,
+            currentTerrain.ground.saturation,
+            currentTerrain.ground.brightness - (Math.random() * 0.1)
+        )
+        return eaten
     }
 
 }
