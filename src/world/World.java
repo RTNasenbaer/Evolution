@@ -22,6 +22,14 @@ public class World {
         this.entities = entities;
     }
 
+    public void addEntity(Entity entity) {
+        entities.add(entity);
+    }
+
+    public void removeEntity(Entity entity) {
+        entities.remove(entity);
+    }
+
     private void generateWorld() {
         Type[][] biomeMap = new Type[WIDTH][HEIGHT];
         int biomeSeeds = 3; // Number of seeds per biome
@@ -77,5 +85,22 @@ public class World {
             }
         }
         return null; // Tile not found
+    }
+
+    public Entity getEntity(int x, int y) {
+        for (Entity entity : entities) {
+            if (entity.getX() == x && entity.getY() == y) {
+                return entity;
+            }
+        }
+        return null; // Entity not found
+    }
+
+    public ArrayList<Entity> getEntities() {
+        return entities;
+    }
+
+    public ArrayList<Tile> getTiles() {
+        return tiles;
     }
 }
