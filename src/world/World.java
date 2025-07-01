@@ -8,8 +8,8 @@ public class World {
 
     private ArrayList<Tile> tiles;
     private ArrayList<Entity> entities;
-    public static final int WIDTH = 50;
-    public static final int HEIGHT = 50;
+    public static final int WIDTH = 20;
+    public static final int HEIGHT = 20;
 
     public World() {
         tiles = new ArrayList<>();

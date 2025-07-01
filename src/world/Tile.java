@@ -29,5 +29,9 @@ public class Tile {
     public boolean hasFood() {
         return food;
     }
+
+    public void setFood(boolean food) {
+        this.food = food;
+    }
 }
 

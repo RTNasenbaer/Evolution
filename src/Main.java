@@ -12,8 +12,8 @@ public class Main {
 
     Main() {
         world = new World();
-        world.addEntity(new Entity(0, 0, 100, 1));
-        display = new Display(world);
+        world.addEntity(new Entity(0, 0, 10, 1, 1));
+        display = new Display(world, Display.DisplayMode.TERMINAL);
         display.render();
 
         Scanner scanner = new Scanner(System.in);
@@ -25,7 +25,12 @@ public class Main {
             if (input.equals("/run")) {
                 try {
                     for (Entity entity : world.getEntities()) {
-                        entity.moveRandomly();
+                        // entity.moveRandomly();
+                        entity.moveDirected(world);
+                        entity.eat(world.getTile(entity.getX(), entity.getY()));
+                        if (!entity.isAlive()) {
+                            world.removeEntity(entity);
+                        }
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid coordinates.");
@@ -38,7 +43,12 @@ public class Main {
                         int steps = Integer.parseInt(parts[1]);
                         for (int i = 0; i < steps; i++) {
                             for (Entity entity : world.getEntities()) {
-                                entity.moveRandomly();
+                                // entity.moveRandomly();
+                                entity.moveDirected(world);
+                                entity.eat(world.getTile(entity.getX(), entity.getY()));
+                                if (!entity.isAlive()) {
+                                    world.removeEntity(entity);
+                                }
                             }
                             display.render();
                             try {
@@ -85,7 +95,7 @@ public class Main {
                     try {
                         int x = Integer.parseInt(parts[1]);
                         int y = Integer.parseInt(parts[2]);
-                        world.addEntity(new Entity(x, y, 100, 1));
+                        world.addEntity(new Entity(x, y, 10, 1, 1));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid coordinates.");
                     }

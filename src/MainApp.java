@@ -3,226 +3,196 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import world.World;
 import entities.Entity;
+import javafx.stage.Screen;
+import javafx.geometry.Rectangle2D;
 
 public class MainApp extends Application {
-
     private World world;
     private Display display;
     private int tickspeed = 200;
-    private GridPane gridPane;
-    private TextArea logArea;
-    private TextField commandField;
     private Stage primaryStage;
+    private GridPane gridPane;
+    private Label statusLabel;
+    private Thread simulationThread;
+    private volatile boolean running = false;
 
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         world = new World();
-        world.addEntity(new Entity(0, 0, 100, 1));
-        display = new Display(world);
-
-        BorderPane root = new BorderPane();
+        world.addEntity(new Entity(0, 0, 10, 1, 1));
+        display = new Display(world, Display.DisplayMode.JAVAFX);
         gridPane = new GridPane();
-        logArea = new TextArea();
-        logArea.setEditable(false);
-        logArea.setPrefRowCount(5);
+        statusLabel = new Label("Ready");
 
-        // --- Sidebar VBox (now on the right) ---
-        VBox sidebar = new VBox(20);
-        sidebar.setPadding(new Insets(20));
-        sidebar.setPrefWidth(250);
-        sidebar.setStyle("-fx-background-color: #222;");
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
+        HBox controls = createControls();
+        root.getChildren().addAll(controls, gridPane, statusLabel);
 
-        // Section: Simulation Controls
-        Label simLabel = new Label("Simulation");
-        simLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-        Button runBtn = new Button("Run 1 Step");
-        Button run10Btn = new Button("Run 10 Steps");
-        Slider tickspeedSlider = new Slider(10, 1000, tickspeed);
-        tickspeedSlider.setShowTickLabels(true);
-        tickspeedSlider.setShowTickMarks(true);
-        tickspeedSlider.setMajorTickUnit(250);
-        tickspeedSlider.setMinorTickCount(4);
-        tickspeedSlider.setBlockIncrement(10);
-        Label tickspeedLabel = new Label("Tickspeed: " + tickspeed + " ms");
-        tickspeedLabel.setStyle("-fx-text-fill: white;");
-        tickspeedSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            tickspeed = newVal.intValue();
-            tickspeedLabel.setText("Tickspeed: " + tickspeed + " ms");
-        });
-        VBox simControls = new VBox(10, runBtn, run10Btn, tickspeedLabel, tickspeedSlider);
+        renderWorld();
 
-        // Section: Entity Controls
-        Label entityLabel = new Label("Entities");
-        entityLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-        Button spawnBtn = new Button("Spawn");
-        Button moveBtn = new Button("Move");
-        VBox entityControls = new VBox(10, spawnBtn, moveBtn);
-
-        // Section: Command Input
-        Label cmdLabel = new Label("Command");
-        cmdLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-        commandField = new TextField();
-        commandField.setPromptText("Enter command...");
-        commandField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ENTER) {
-                handleCommand(commandField.getText());
-                commandField.clear();
-            }
-        });
-        VBox cmdControls = new VBox(5, cmdLabel, commandField);
-
-        // Add all sections to sidebar
-        sidebar.getChildren().addAll(simLabel, simControls, entityLabel, entityControls, cmdControls);
-
-        // Place sidebar on the right side of the main layout
-        root.setRight(sidebar);
-
-        // Log area and grid
-        root.setCenter(gridPane);
-        root.setBottom(logArea);
-
-        // Button actions
-        runBtn.setOnAction(e -> runSteps(1));
-        run10Btn.setOnAction(e -> runSteps(10));
-        spawnBtn.setOnAction(e -> {
-            world.addEntity(new Entity(0, 0, 100, 1));
-            log("Spawned entity at (0,0)");
-            renderGrid();
-        });
-        moveBtn.setOnAction(e -> {
-            if (!world.getEntities().isEmpty()) {
-                world.getEntities().get(0).moveRandomly();
-                log("Moved entity randomly");
-                renderGrid();
-            }
-        });
-
-        // Fullscreen
-        Scene scene = new Scene(root, 1200, 900);
+        Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Evolution World");
-        primaryStage.setFullScreen(true);
+        primaryStage.setTitle("Evolution Simulation");
         primaryStage.show();
-
-        renderGrid();
     }
 
-    private void renderGrid() {
-        gridPane.getChildren().clear();
-        for (int y = 0; y < World.HEIGHT; y++) {
-            for (int x = 0; x < World.WIDTH; x++) {
-                Label label = display.createTileLabel(world, x, y);
-                gridPane.add(label, x, y);
+    private HBox createControls() {
+        Button runStepBtn = new Button("Run Step");
+        Button runManyBtn = new Button("Run N Steps");
+        Button spawnBtn = new Button("Spawn Entity");
+        Button moveBtn = new Button("Move Entity");
+        Button stopBtn = new Button("Stop");
+        TextField stepsField = new TextField();
+        stepsField.setPromptText("Steps");
+        stepsField.setPrefWidth(60);
+        TextField spawnX = new TextField();
+        spawnX.setPromptText("X");
+        spawnX.setPrefWidth(40);
+        TextField spawnY = new TextField();
+        spawnY.setPromptText("Y");
+        spawnY.setPrefWidth(40);
+        TextField moveEx = new TextField();
+        moveEx.setPromptText("Ex");
+        moveEx.setPrefWidth(40);
+        TextField moveEy = new TextField();
+        moveEy.setPromptText("Ey");
+        moveEy.setPrefWidth(40);
+        TextField moveX = new TextField();
+        moveX.setPromptText("X");
+        moveX.setPrefWidth(40);
+        TextField moveY = new TextField();
+        moveY.setPromptText("Y");
+        moveY.setPrefWidth(40);
+        TextField tickspeedField = new TextField();
+        tickspeedField.setPromptText("Tickspeed (ms)");
+        tickspeedField.setPrefWidth(80);
+        Button setTickspeedBtn = new Button("Set Tickspeed");
+
+        runStepBtn.setOnAction(e -> runSteps(1));
+        runManyBtn.setOnAction(e -> {
+            int steps = parseIntOr(stepsField.getText(), 1);
+            runSteps(steps);
+        });
+        spawnBtn.setOnAction(e -> {
+            int x = parseIntOr(spawnX.getText(), 0);
+            int y = parseIntOr(spawnY.getText(), 0);
+            world.addEntity(new Entity(x, y, 10, 1, 1));
+            renderWorld();
+        });
+        moveBtn.setOnAction(e -> {
+            int ex = parseIntOr(moveEx.getText(), 0);
+            int ey = parseIntOr(moveEy.getText(), 0);
+            int x = parseIntOr(moveX.getText(), 0);
+            int y = parseIntOr(moveY.getText(), 0);
+            Entity entity = world.getEntity(ex, ey);
+            if (entity != null) {
+                entity.moveTo(x, y);
+                entity.eat(world.getTile(entity.getX(), entity.getY()));
+                if (!entity.isAlive()) {
+                    world.removeEntity(entity);
+                }
+                statusLabel.setText("Entity moved.");
+            } else {
+                statusLabel.setText("Entity not found at (" + ex + "," + ey + ")");
             }
-        }
+            renderWorld();
+        });
+        setTickspeedBtn.setOnAction(e -> {
+            int newTickspeed = parseIntOr(tickspeedField.getText(), 200);
+            if (newTickspeed >= 0) {
+                tickspeed = newTickspeed;
+                statusLabel.setText("Tickspeed set to " + tickspeed + " ms.");
+            } else {
+                statusLabel.setText("Tickspeed must be non-negative.");
+            }
+        });
+        stopBtn.setOnAction(e -> stopSimulation());
+
+        HBox hbox = new HBox(5, runStepBtn, runManyBtn, stepsField, spawnBtn, spawnX, spawnY, moveBtn, moveEx, moveEy, moveX, moveY, setTickspeedBtn, tickspeedField, stopBtn);
+        hbox.setPadding(new Insets(5));
+        return hbox;
     }
 
     private void runSteps(int steps) {
-        new Thread(() -> {
-            for (int i = 0; i < steps; i++) {
+        if (simulationThread != null && simulationThread.isAlive()) {
+            statusLabel.setText("Simulation already running.");
+            return;
+        }
+        running = true;
+        simulationThread = new Thread(() -> {
+            for (int i = 0; i < steps && running; i++) {
                 for (Entity entity : world.getEntities()) {
-                    entity.moveRandomly();
+                    // entity.moveRandomly();
+                    entity.moveDirected(world);
+                    entity.eat(world.getTile(entity.getX(), entity.getY()));
+                    if (!entity.isAlive()) {
+                        world.removeEntity(entity);
+                    }
                 }
-                Platform.runLater(this::renderGrid);
+                Platform.runLater(this::renderWorld);
                 try {
                     Thread.sleep(tickspeed);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log("Interrupted.");
                     break;
                 }
             }
-        }).start();
+            running = false;
+        });
+        simulationThread.setDaemon(true);
+        simulationThread.start();
     }
 
-    private void handleCommand(String input) {
-        if (input.equals("/exit")) {
-            Platform.exit();
-        } else if (input.equals("/run")) {
-            runSteps(1);
-        } else if (input.startsWith("/run ")) {
-            String[] parts = input.split(" ");
-            if (parts.length == 2) {
-                try {
-                    int steps = Integer.parseInt(parts[1]);
-                    runSteps(steps);
-                } catch (NumberFormatException e) {
-                    log("Invalid number of steps.");
-                }
-            } else {
-                log("Usage: /run <steps>");
-            }
-        } else if (input.startsWith("/move ")) {
-            String[] parts = input.split(" ");
-            if (parts.length == 3) {
-                try {
-                    int x = Integer.parseInt(parts[1]);
-                    int y = Integer.parseInt(parts[2]);
-                    world.getEntities().get(0).moveTo(x, y);
-                    log("Moved entity to (" + x + "," + y + ")");
-                } catch (NumberFormatException e) {
-                    log("Invalid coordinates.");
-                }
-            } else if (parts.length == 5) {
-                try {
-                    int ex = Integer.parseInt(parts[1]);
-                    int ey = Integer.parseInt(parts[2]);
-                    int x = Integer.parseInt(parts[3]);
-                    int y = Integer.parseInt(parts[4]);
-                    world.getEntity(ex, ey).moveTo(x, y);
-                    log("Moved entity at (" + ex + "," + ey + ") to (" + x + "," + y + ")");
-                } catch (NumberFormatException e) {
-                    log("Invalid coordinates.");
-                }
-            } else {
-                log("Usage: /move x y");
-            }
-            renderGrid();
-        } else if (input.startsWith("/spawn ")) {
-            String[] parts = input.split(" ");
-            if (parts.length == 3) {
-                try {
-                    int x = Integer.parseInt(parts[1]);
-                    int y = Integer.parseInt(parts[2]);
-                    world.addEntity(new Entity(x, y, 100, 1));
-                    log("Spawned entity at (" + x + "," + y + ")");
-                } catch (NumberFormatException e) {
-                    log("Invalid coordinates.");
-                }
-            } else {
-                log("Usage: /spawn x y");
-            }
-            renderGrid();
-        } else if (input.startsWith("/tickspeed ")) {
-            String[] parts = input.split(" ");
-            if (parts.length == 2) {
-                try {
-                    int newTickspeed = Integer.parseInt(parts[1]);
-                    if (newTickspeed < 0) {
-                        log("Tickspeed must be non-negative.");
-                    } else {
-                        tickspeed = newTickspeed;
-                        log("Tickspeed set to " + tickspeed + " ms.");
-                    }
-                } catch (NumberFormatException e) {
-                    log("Invalid tickspeed.");
-                }
-            } else {
-                log("Usage: /tickspeed <ms>");
-            }
-        } else {
-            log("Unknown command.");
+    private void stopSimulation() {
+        running = false;
+        if (simulationThread != null) {
+            simulationThread.interrupt();
         }
+        statusLabel.setText("Simulation stopped.");
     }
 
-    private void log(String msg) {
-        logArea.appendText(msg + "\n");
+    private void renderWorld() {
+        gridPane.getChildren().clear();
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        double maxWidth = screenBounds.getWidth() - 100; // leave some margin
+        double maxHeight = screenBounds.getHeight() - 150; // leave some margin for controls
+        int tileSize = 24;
+        double neededWidth = World.WIDTH * tileSize;
+        double neededHeight = World.HEIGHT * tileSize;
+        // Adjust tile size if needed
+        if (neededWidth > maxWidth || neededHeight > maxHeight) {
+            double scaleX = maxWidth / World.WIDTH;
+            double scaleY = maxHeight / World.HEIGHT;
+            tileSize = (int) Math.floor(Math.min(scaleX, scaleY));
+            if (tileSize < 8) tileSize = 8; // minimum size for visibility
+        }
+        for (int y = 0; y < World.HEIGHT; y++) {
+            for (int x = 0; x < World.WIDTH; x++) {
+                javafx.scene.control.Label label = display.createTileLabel(world, x, y);
+                label.setMinSize(tileSize, tileSize);
+                label.setMaxSize(tileSize, tileSize);
+                label.setFont(javafx.scene.text.Font.font("Monospaced", tileSize - 6));
+                gridPane.add(label, x, y);
+            }
+        }
+        gridPane.setPrefSize(tileSize * World.WIDTH, tileSize * World.HEIGHT);
+        gridPane.setMaxSize(tileSize * World.WIDTH, tileSize * World.HEIGHT);
+        primaryStage.setWidth(Math.min(tileSize * World.WIDTH + 40, maxWidth + 40));
+        primaryStage.setHeight(Math.min(tileSize * World.HEIGHT + 120, maxHeight + 120));
+    }
+
+    private int parseIntOr(String s, int def) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return def;
+        }
     }
 
     public static void main(String[] args) {
