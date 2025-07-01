@@ -7,13 +7,12 @@ import entities.Entity;
 public class Main {
 
     private World world;
-    private Entity entity;
     private Display display;
+    private int tickspeed = 200; // Default tickspeed in ms
 
     Main() {
         world = new World();
-        entity = new Entity(0, 0, 100, 1);
-        world.addEntity(entity);
+        world.addEntity(new Entity(0, 0, 100, 1));
         display = new Display(world);
         display.render();
 
@@ -21,11 +20,13 @@ public class Main {
         while (true) {
             System.out.print("Enter command: ");
             String input = scanner.nextLine();
-            if (input.equals("/exit")) break;
+            if (input.equals("/exit"))
+                break;
             if (input.equals("/run")) {
-                // For now, just re-render (simulate a step if needed)
                 try {
-                    entity.moveRandomly();
+                    for (Entity entity : world.getEntities()) {
+                        entity.moveRandomly();
+                    }
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid coordinates.");
                 }
@@ -36,7 +37,17 @@ public class Main {
                     try {
                         int steps = Integer.parseInt(parts[1]);
                         for (int i = 0; i < steps; i++) {
-                            entity.moveRandomly();
+                            for (Entity entity : world.getEntities()) {
+                                entity.moveRandomly();
+                            }
+                            display.render();
+                            try {
+                                Thread.sleep(tickspeed);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                System.out.println("Interrupted.");
+                                break;
+                            }
                         }
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid number of steps.");
@@ -44,16 +55,13 @@ public class Main {
                 } else {
                     System.out.println("Usage: /run <steps>");
                 }
-                display.render();
-            } else if (input.equals("/status")) {
-                System.out.println("Entity at (" + entity.getX() + ", " + entity.getY() + "), Energy: " + entity.getEnergy() + ", Speed: " + entity.getSpeed());
             } else if (input.startsWith("/move ")) {
                 String[] parts = input.split(" ");
                 if (parts.length == 3) {
                     try {
                         int x = Integer.parseInt(parts[1]);
                         int y = Integer.parseInt(parts[2]);
-                        entity.moveTo(x, y);
+                        world.getEntities().get(0).moveTo(x, y);
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid coordinates.");
                     }
@@ -85,6 +93,23 @@ public class Main {
                     System.out.println("Usage: /spawn x y");
                 }
                 display.render();
+            } else if (input.startsWith("/tickspeed ")) {
+                String[] parts = input.split(" ");
+                if (parts.length == 2) {
+                    try {
+                        int newTickspeed = Integer.parseInt(parts[1]);
+                        if (newTickspeed < 0) {
+                            System.out.println("Tickspeed must be non-negative.");
+                        } else {
+                            tickspeed = newTickspeed;
+                            System.out.println("Tickspeed set to " + tickspeed + " ms.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid tickspeed.");
+                    }
+                } else {
+                    System.out.println("Usage: /tickspeed <ms>");
+                }
             } else {
                 System.out.println("Unknown command.");
             }

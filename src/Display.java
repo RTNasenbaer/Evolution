@@ -1,16 +1,39 @@
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import world.Tile;
 import world.World;
 
 public class Display {
 
+    public enum DisplayMode {
+        TERMINAL, JAVAFX
+    }
+
     private World world;
     private boolean renderedOnce = false;
+    private DisplayMode mode = DisplayMode.JAVAFX;
 
-    Display(World world) {
+    public Display(World world) {
         this.world = world;
     }
 
+    public void setMode(DisplayMode mode) {
+        this.mode = mode;
+    }
+
     public void render() {
+        if (mode == DisplayMode.TERMINAL) {
+            renderTerminal();
+        }
+        // For JavaFX, call renderJavaFX(Stage) from your Application class
+    }
+
+    private void renderTerminal() {
         // Move the cursor up by the grid height to overwrite the previous grid
         // (except for the very first render)
         if (renderedOnce) {
@@ -55,8 +78,54 @@ public class Display {
             fgColor = "";
         }
 
-        String block = "\u001B[48;2;" + r + ";" + g + ";" + b + "m" +
-                fgColor + symbol + "\u001B[0m";
+        String block = "\u001B[48;2;" + r + ";" + g + ";" + b + "m" + fgColor + symbol + "\u001B[0m";
         System.out.print(block + " ");
+    }
+
+    // --- JavaFX rendering ---
+
+    public void renderJavaFX(Stage stage) {
+        Platform.runLater(() -> {
+            GridPane grid = new GridPane();
+            for (int y = 0; y < World.HEIGHT; y++) {
+                for (int x = 0; x < World.WIDTH; x++) {
+                    Label label = createTileLabel(world, x, y);
+                    grid.add(label, x, y);
+                }
+            }
+            Scene scene = new Scene(grid);
+            stage.setScene(scene);
+            stage.setTitle("Evolution World");
+            stage.show();
+        });
+    }
+
+    public Label createTileLabel(World world, int x, int y) {
+        entities.Entity entity = world.getEntity(x, y);
+        Tile tile = world.getTile(x, y);
+
+        String hex = tile.getType().getHex();
+        Color bgColor = Color.web(hex);
+
+        String symbol;
+        Color fgColor = Color.BLACK;
+
+        if (entity != null) {
+            symbol = "@";
+            fgColor = Color.WHITE;
+        } else if (tile.hasFood()) {
+            symbol = "•";
+            fgColor = Color.RED;
+        } else {
+            symbol = " ";
+        }
+
+        Label label = new Label(symbol);
+        label.setFont(Font.font("Monospaced", 18));
+        label.setMinSize(24, 24);
+        label.setMaxSize(24, 24);
+        label.setStyle("-fx-background-color: " + hex + "; -fx-alignment: center;");
+        label.setTextFill(fgColor);
+        return label;
     }
 }

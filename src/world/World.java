@@ -48,12 +48,12 @@ public class World {
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
                 if (biomeMap[x][y] != null) {
-                    queue.add(new int[]{x, y});
+                    queue.add(new int[] { x, y });
                 }
             }
         }
 
-        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+        int[][] dirs = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
         while (!queue.isEmpty()) {
             int[] pos = queue.poll();
             int x = pos[0], y = pos[1];
@@ -63,7 +63,7 @@ public class World {
                 if (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT && biomeMap[nx][ny] == null) {
                     if (Math.random() < 0.6) { // Controls biome "spread"
                         biomeMap[nx][ny] = type;
-                        queue.add(new int[]{nx, ny});
+                        queue.add(new int[] { nx, ny });
                     }
                 }
             }
@@ -72,7 +72,8 @@ public class World {
         // Fill any remaining tiles with GRASS
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++) {
-                if (biomeMap[x][y] == null) biomeMap[x][y] = Type.GRASS;
+                if (biomeMap[x][y] == null)
+                    biomeMap[x][y] = Type.GRASS;
                 tiles.add(new Tile(x, y, biomeMap[x][y]));
             }
         }
@@ -94,6 +95,14 @@ public class World {
             }
         }
         return null; // Entity not found
+    }
+
+    public int getWidth() {
+        return WIDTH;
+    }
+
+    public int getHeight() {
+        return HEIGHT;
     }
 
     public ArrayList<Entity> getEntities() {
