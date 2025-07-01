@@ -1,5 +1,7 @@
+import world.Type;
 import world.World;
 
+import java.util.Map;
 import java.util.Scanner;
 
 import entities.Entity;
@@ -12,7 +14,7 @@ public class Main {
 
     Main() {
         world = new World();
-        world.addEntity(new Entity(0, 0, 10, 1, 1));
+        world.addEntity(Entity.createDefaultEntity(0, 0));
         display = new Display(world, Display.DisplayMode.TERMINAL);
         display.render();
 
@@ -23,42 +25,13 @@ public class Main {
             if (input.equals("/exit"))
                 break;
             if (input.equals("/run")) {
-                try {
-                    for (Entity entity : world.getEntities()) {
-                        // entity.moveRandomly();
-                        entity.moveDirected(world);
-                        entity.eat(world.getTile(entity.getX(), entity.getY()));
-                        if (!entity.isAlive()) {
-                            world.removeEntity(entity);
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid coordinates.");
-                }
-                display.render();
+                runSteps(1);
             } else if (input.startsWith("/run ")) {
                 String[] parts = input.split(" ");
                 if (parts.length == 2) {
                     try {
                         int steps = Integer.parseInt(parts[1]);
-                        for (int i = 0; i < steps; i++) {
-                            for (Entity entity : world.getEntities()) {
-                                // entity.moveRandomly();
-                                entity.moveDirected(world);
-                                entity.eat(world.getTile(entity.getX(), entity.getY()));
-                                if (!entity.isAlive()) {
-                                    world.removeEntity(entity);
-                                }
-                            }
-                            display.render();
-                            try {
-                                Thread.sleep(tickspeed);
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                System.out.println("Interrupted.");
-                                break;
-                            }
-                        }
+                        runSteps(steps);
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid number of steps.");
                     }
@@ -95,7 +68,7 @@ public class Main {
                     try {
                         int x = Integer.parseInt(parts[1]);
                         int y = Integer.parseInt(parts[2]);
-                        world.addEntity(new Entity(x, y, 10, 1, 1));
+                        world.addEntity(Entity.createDefaultEntity(x, y));
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid coordinates.");
                     }
@@ -125,6 +98,29 @@ public class Main {
             }
         }
         scanner.close();
+    }
+
+    private void runSteps(int steps) {
+        for (int i = 0; i < steps; i++) {
+            for (Entity entity : world.getEntities()) { // Use a copy to avoid concurrent modification
+                entity.update(world, tickspeed, World.SIZE);
+            }
+
+            // Print entity counts in all biomes
+            Map<Type, Integer> biomeEntityCounts = world.countEntitiesInAllBiomes();
+            System.out.println("Entity counts by biome after step " + (i + 1) + ":");
+            for (Map.Entry<Type, Integer> entry : biomeEntityCounts.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+
+            display.render();
+            try {
+                Thread.sleep(tickspeed);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     public static void main(String[] args) {

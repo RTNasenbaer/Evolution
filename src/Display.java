@@ -15,7 +15,6 @@ public class Display {
     }
 
     private World world;
-    private boolean renderedOnce = false;
     private DisplayMode mode = DisplayMode.JAVAFX;
     private static final int MAX_TERM_GRID_SIZE = 20;
 
@@ -36,8 +35,8 @@ public class Display {
     }
 
     private void renderTerminal() {
-        int worldWidth = world.getWidth();
-        int worldHeight = world.getHeight();
+        int worldWidth = world.getSize();
+        int worldHeight = world.getSize();
         int gridSize = Math.min(MAX_TERM_GRID_SIZE, Math.min(worldWidth, worldHeight));
         int cellWidth = (int) Math.ceil((double) worldWidth / gridSize);
         int cellHeight = (int) Math.ceil((double) worldHeight / gridSize);
@@ -78,7 +77,7 @@ public class Display {
             for (int dy = 0; dy < cellHeight; dy++) {
                 int x = startX + dx;
                 int y = startY + dy;
-                if (x >= world.getWidth() || y >= world.getHeight()) continue;
+                if (x >= world.getSize() || y >= world.getSize()) continue;
                 entities.Entity entity = world.getEntity(x, y);
                 Tile tile = world.getTile(x, y);
                 if (entity != null) containsEntity = true;
@@ -111,8 +110,8 @@ public class Display {
     public void renderJavaFX(Stage stage) {
         Platform.runLater(() -> {
             GridPane grid = new GridPane();
-            for (int y = 0; y < World.HEIGHT; y++) {
-                for (int x = 0; x < World.WIDTH; x++) {
+            for (int y = 0; y < World.SIZE; y++) {
+                for (int x = 0; x < World.SIZE; x++) {
                     Label label = createTileLabel(world, x, y);
                     grid.add(label, x, y);
                 }
@@ -129,8 +128,6 @@ public class Display {
         Tile tile = world.getTile(x, y);
 
         String hex = tile.getType().getHex();
-        Color bgColor = Color.web(hex);
-
         String symbol;
         Color fgColor = Color.BLACK;
 

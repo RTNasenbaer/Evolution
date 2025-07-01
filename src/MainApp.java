@@ -5,7 +5,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import world.Type;
 import world.World;
+
+import java.util.Map;
+
 import entities.Entity;
 import javafx.stage.Screen;
 import javafx.geometry.Rectangle2D;
@@ -24,7 +28,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         world = new World();
-        world.addEntity(new Entity(0, 0, 10, 1, 1));
+        world.addEntity(Entity.createDefaultEntity(0, 0));
         display = new Display(world, Display.DisplayMode.JAVAFX);
         gridPane = new GridPane();
         statusLabel = new Label("Ready");
@@ -82,7 +86,7 @@ public class MainApp extends Application {
         spawnBtn.setOnAction(e -> {
             int x = parseIntOr(spawnX.getText(), 0);
             int y = parseIntOr(spawnY.getText(), 0);
-            world.addEntity(new Entity(x, y, 10, 1, 1));
+            world.addEntity(Entity.createDefaultEntity(x, y));
             renderWorld();
         });
         moveBtn.setOnAction(e -> {
@@ -93,7 +97,7 @@ public class MainApp extends Application {
             Entity entity = world.getEntity(ex, ey);
             if (entity != null) {
                 entity.moveTo(x, y);
-                entity.eat(world.getTile(entity.getX(), entity.getY()));
+                entity.eat(world.getTile(entity.getX(), entity.getY()), tickspeed, World.SIZE);
                 if (!entity.isAlive()) {
                     world.removeEntity(entity);
                 }
@@ -127,14 +131,17 @@ public class MainApp extends Application {
         running = true;
         simulationThread = new Thread(() -> {
             for (int i = 0; i < steps && running; i++) {
-                for (Entity entity : world.getEntities()) {
-                    // entity.moveRandomly();
-                    entity.moveDirected(world);
-                    entity.eat(world.getTile(entity.getX(), entity.getY()));
-                    if (!entity.isAlive()) {
-                        world.removeEntity(entity);
-                    }
+                for (Entity entity : world.getEntities()) { // Use a copy to avoid concurrent modification
+                    entity.update(world, tickspeed, World.SIZE);
                 }
+
+                // Print entity counts in all biomes
+                Map<Type, Integer> biomeEntityCounts = world.countEntitiesInAllBiomes();
+                System.out.println("Entity counts by biome after step " + (i + 1) + ":");
+                for (Map.Entry<Type, Integer> entry : biomeEntityCounts.entrySet()) {
+                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                }
+
                 Platform.runLater(this::renderWorld);
                 try {
                     Thread.sleep(tickspeed);
@@ -163,17 +170,17 @@ public class MainApp extends Application {
         double maxWidth = screenBounds.getWidth() - 100; // leave some margin
         double maxHeight = screenBounds.getHeight() - 150; // leave some margin for controls
         int tileSize = 24;
-        double neededWidth = World.WIDTH * tileSize;
-        double neededHeight = World.HEIGHT * tileSize;
+        double neededWidth = World.SIZE * tileSize;
+        double neededHeight = World.SIZE * tileSize;
         // Adjust tile size if needed
         if (neededWidth > maxWidth || neededHeight > maxHeight) {
-            double scaleX = maxWidth / World.WIDTH;
-            double scaleY = maxHeight / World.HEIGHT;
+            double scaleX = maxWidth / World.SIZE;
+            double scaleY = maxHeight / World.SIZE;
             tileSize = (int) Math.floor(Math.min(scaleX, scaleY));
             if (tileSize < 8) tileSize = 8; // minimum size for visibility
         }
-        for (int y = 0; y < World.HEIGHT; y++) {
-            for (int x = 0; x < World.WIDTH; x++) {
+        for (int y = 0; y < World.SIZE; y++) {
+            for (int x = 0; x < World.SIZE; x++) {
                 javafx.scene.control.Label label = display.createTileLabel(world, x, y);
                 label.setMinSize(tileSize, tileSize);
                 label.setMaxSize(tileSize, tileSize);
@@ -181,10 +188,10 @@ public class MainApp extends Application {
                 gridPane.add(label, x, y);
             }
         }
-        gridPane.setPrefSize(tileSize * World.WIDTH, tileSize * World.HEIGHT);
-        gridPane.setMaxSize(tileSize * World.WIDTH, tileSize * World.HEIGHT);
-        primaryStage.setWidth(Math.min(tileSize * World.WIDTH + 40, maxWidth + 40));
-        primaryStage.setHeight(Math.min(tileSize * World.HEIGHT + 120, maxHeight + 120));
+        gridPane.setPrefSize(tileSize * World.SIZE, tileSize * World.SIZE);
+        gridPane.setMaxSize(tileSize * World.SIZE, tileSize * World.SIZE);
+        primaryStage.setWidth(Math.min(tileSize * World.SIZE + 40, maxWidth + 40));
+        primaryStage.setHeight(Math.min(tileSize * World.SIZE + 120, maxHeight + 120));
     }
 
     private int parseIntOr(String s, int def) {

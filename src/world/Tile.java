@@ -1,6 +1,11 @@
 package world;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Tile {
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private int x;
     private int y;
@@ -32,6 +37,13 @@ public class Tile {
 
     public void setFood(boolean food) {
         this.food = food;
+    }
+
+    public void regenerateFoodAfterDelay(long tickspeed, int gridSize) {
+        long baseDelay = 5000; // Base delay in milliseconds
+        double gridFactor = (gridSize * gridSize) / (gridSize * 100.0); // Normalize grid size
+        long adjustedDelay = (long) (baseDelay * (tickspeed / 200.0) * gridFactor); // Adjust delay
+        scheduler.schedule(() -> setFood(true), adjustedDelay, TimeUnit.MILLISECONDS);
     }
 }
 

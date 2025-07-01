@@ -2,22 +2,27 @@ package world;
 
 import entities.Entity;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class World {
 
-    private ArrayList<Tile> tiles;
-    private ArrayList<Entity> entities;
-    public static final int WIDTH = 20;
-    public static final int HEIGHT = 20;
+    private CopyOnWriteArrayList<Tile> tiles;
+    private CopyOnWriteArrayList<Entity> entities;
+    public static final int SIZE = 50;
 
     public World() {
-        tiles = new ArrayList<>();
-        entities = new ArrayList<>();
+        tiles = new CopyOnWriteArrayList<>();
+        entities = new CopyOnWriteArrayList<>();
         generateWorld();
     }
 
-    public World(ArrayList<Tile> tiles, ArrayList<Entity> entities) {
+    public World(CopyOnWriteArrayList<Tile> tiles, CopyOnWriteArrayList<Entity> entities) {
         this.tiles = tiles;
         this.entities = entities;
     }
@@ -31,22 +36,22 @@ public class World {
     }
 
     private void generateWorld() {
-        Type[][] biomeMap = new Type[WIDTH][HEIGHT];
+        Type[][] biomeMap = new Type[SIZE][SIZE];
         int biomeSeeds = 3; // Number of seeds per biome
 
         // Seed biomes
         for (Type type : Type.values()) {
             for (int i = 0; i < biomeSeeds; i++) {
-                int sx = (int) (Math.random() * WIDTH);
-                int sy = (int) (Math.random() * HEIGHT);
+                int sx = (int) (Math.random() * SIZE);
+                int sy = (int) (Math.random() * SIZE);
                 biomeMap[sx][sy] = type;
             }
         }
 
         // Expand biomes using BFS
-        java.util.Queue<int[]> queue = new java.util.LinkedList<>();
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
+        Queue<int[]> queue = new LinkedList<>();
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
                 if (biomeMap[x][y] != null) {
                     queue.add(new int[] { x, y });
                 }
@@ -60,7 +65,7 @@ public class World {
             Type type = biomeMap[x][y];
             for (int[] d : dirs) {
                 int nx = x + d[0], ny = y + d[1];
-                if (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT && biomeMap[nx][ny] == null) {
+                if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && biomeMap[nx][ny] == null) {
                     if (Math.random() < 0.6) { // Controls biome "spread"
                         biomeMap[nx][ny] = type;
                         queue.add(new int[] { nx, ny });
@@ -70,8 +75,8 @@ public class World {
         }
 
         // Fill any remaining tiles with GRASS
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
                 if (biomeMap[x][y] == null)
                     biomeMap[x][y] = Type.GRASS;
                 tiles.add(new Tile(x, y, biomeMap[x][y]));
@@ -97,19 +102,40 @@ public class World {
         return null; // Entity not found
     }
 
-    public int getWidth() {
-        return WIDTH;
+    public int getSize() {
+        return SIZE;
     }
 
-    public int getHeight() {
-        return HEIGHT;
-    }
-
-    public ArrayList<Entity> getEntities() {
+    public CopyOnWriteArrayList<Entity> getEntities() {
         return entities;
     }
 
-    public ArrayList<Tile> getTiles() {
+    public CopyOnWriteArrayList<Tile> getTiles() {
         return tiles;
+    }
+
+    public Map<Type, Integer> countEntitiesInAllBiomes() {
+        // Map to store biome type to set of tiles in that biome
+        Map<Type, Set<Tile>> biomeTiles = new HashMap<>();
+        for (Tile tile : tiles) {
+            biomeTiles.computeIfAbsent(tile.getType(), k -> new HashSet<>()).add(tile);
+        }
+
+        // Map to store biome type to entity count
+        Map<Type, Integer> biomeEntityCounts = new HashMap<>();
+        for (Type type : biomeTiles.keySet()) {
+            biomeEntityCounts.put(type, 0);
+        }
+
+        // Count entities in each biome
+        for (Entity entity : entities) {
+            Tile entityTile = getTile(entity.getX(), entity.getY());
+            if (entityTile != null) {
+                Type type = entityTile.getType();
+                biomeEntityCounts.put(type, biomeEntityCounts.get(type) + 1);
+            }
+        }
+
+        return biomeEntityCounts;
     }
 }
