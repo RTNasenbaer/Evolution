@@ -149,4 +149,46 @@ public class Display {
         label.setTextFill(fgColor);
         return label;
     }
+
+    public Label createCombinedTileLabel(int startX, int startY, int blockSize) {
+        boolean containsEntity = false;
+        boolean containsFood = false;
+        String hexColor = null;
+
+        for (int dx = 0; dx < blockSize; dx++) {
+            for (int dy = 0; dy < blockSize; dy++) {
+                int x = startX + dx;
+                int y = startY + dy;
+                if (x >= world.getSize() || y >= world.getSize()) continue;
+
+                entities.Entity entity = world.getEntity(x, y);
+                Tile tile = world.getTile(x, y);
+
+                if (entity != null) containsEntity = true;
+                if (tile != null && tile.hasFood()) containsFood = true;
+                if (tile != null && hexColor == null) hexColor = tile.getType().getHex();
+            }
+        }
+
+        String symbol;
+        Color fgColor = Color.BLACK;
+
+        if (containsEntity) {
+            symbol = "@";
+            fgColor = Color.WHITE;
+        } else if (containsFood) {
+            symbol = "•";
+            fgColor = Color.RED;
+        } else {
+            symbol = " ";
+        }
+
+        if (hexColor == null) hexColor = "#000000";
+
+        Label label = new Label(symbol);
+        label.setFont(Font.font("Monospaced", 18));
+        label.setStyle("-fx-background-color: " + hexColor + "; -fx-alignment: center;");
+        label.setTextFill(fgColor);
+        return label;
+    }
 }

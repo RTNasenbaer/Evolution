@@ -34,7 +34,8 @@ public class Test extends Application {
       series2.setName("Graph 2");
 
       var lineChart = new LineChart<>(xAxis, yAxis);
-      lineChart.getData().addAll(series1, series2);
+      lineChart.getData().add(series1);
+      lineChart.getData().add(series2);
       lineChart.setTitle("Multiple Graphs Example");
 
       var button = new Button("Add Data");
