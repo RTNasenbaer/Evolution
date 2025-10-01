@@ -3,28 +3,55 @@ package world;
 import entities.Entity;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class World {
 
-    private CopyOnWriteArrayList<Tile> tiles;
+    private Tile[][] tileGrid; // 2D array for O(1) tile access
     private CopyOnWriteArrayList<Entity> entities;
+    private WorldSeed worldSeed;
     public static final int SIZE = 50;
+    public static int GLOBAL_STEP_COUNT = 0;
 
+    // Default constructor - creates random procedural world
     public World() {
-        tiles = new CopyOnWriteArrayList<>();
-        entities = new CopyOnWriteArrayList<>();
-        generateWorld();
+        this(new WorldSeed(System.currentTimeMillis()));
     }
 
+    // Constructor with legacy numeric seed (backward compatibility)
+    public World(long legacySeed) {
+        this(WorldSeed.fromLegacySeed(legacySeed));
+    }
+    
+    // Constructor with string seed
+    public World(String seedString) {
+        this(WorldSeed.fromSeedString(seedString));
+    }
+
+    // Primary constructor with WorldSeed
+    public World(WorldSeed worldSeed) {
+        this.worldSeed = worldSeed;
+        this.tileGrid = new Tile[SIZE][SIZE];
+        this.entities = new CopyOnWriteArrayList<>();
+        generateWorldFromSeed();
+    }
+
+    // Legacy constructor for backward compatibility
     public World(CopyOnWriteArrayList<Tile> tiles, CopyOnWriteArrayList<Entity> entities) {
-        this.tiles = tiles;
         this.entities = entities;
+        this.tileGrid = new Tile[SIZE][SIZE];
+        
+        // Convert list to 2D array and create seed from existing data
+        Type[][] biomeData = new Type[SIZE][SIZE];
+        for (Tile tile : tiles) {
+            tileGrid[tile.getX()][tile.getY()] = tile;
+            biomeData[tile.getX()][tile.getY()] = tile.getType();
+        }
+        this.worldSeed = new WorldSeed(biomeData);
     }
 
     public void addEntity(Entity entity) {
@@ -35,62 +62,25 @@ public class World {
         entities.remove(entity);
     }
 
-    private void generateWorld() {
-        Type[][] biomeMap = new Type[SIZE][SIZE];
-        int biomeSeeds = 3; // Number of seeds per biome
-
-        // Seed biomes
-        for (Type type : Type.values()) {
-            for (int i = 0; i < biomeSeeds; i++) {
-                int sx = (int) (Math.random() * SIZE);
-                int sy = (int) (Math.random() * SIZE);
-                biomeMap[sx][sy] = type;
-            }
-        }
-
-        // Expand biomes using BFS
-        Queue<int[]> queue = new LinkedList<>();
+    private void generateWorldFromSeed() {
+        // Generate world directly from seed data - no procedural generation needed
+        Type[][] biomeData = worldSeed.getBiomeData();
+        
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
-                if (biomeMap[x][y] != null) {
-                    queue.add(new int[] { x, y });
-                }
+                Type biome = biomeData[x][y];
+                tileGrid[x][y] = new Tile(x, y, biome);
             }
         }
-
-        int[][] dirs = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
-        while (!queue.isEmpty()) {
-            int[] pos = queue.poll();
-            int x = pos[0], y = pos[1];
-            Type type = biomeMap[x][y];
-            for (int[] d : dirs) {
-                int nx = x + d[0], ny = y + d[1];
-                if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && biomeMap[nx][ny] == null) {
-                    if (Math.random() < 0.6) { // Controls biome "spread"
-                        biomeMap[nx][ny] = type;
-                        queue.add(new int[] { nx, ny });
-                    }
-                }
-            }
-        }
-
-        // Fill any remaining tiles with GRASS
-        for (int x = 0; x < SIZE; x++) {
-            for (int y = 0; y < SIZE; y++) {
-                if (biomeMap[x][y] == null)
-                    biomeMap[x][y] = Type.GRASS;
-                tiles.add(new Tile(x, y, biomeMap[x][y]));
-            }
-        }
+        
+        System.out.println("World loaded: " + worldSeed.getDescription());
     }
 
     public Tile getTile(int x, int y) {
-        for (Tile tile : tiles) {
-            if (tile.getX() == x && tile.getY() == y) {
-                return tile;
-            }
+        if (x >= 0 && x < SIZE && y >= 0 && y < SIZE) {
+            return tileGrid[x][y];
         }
-        return null; // Tile not found
+        return null; // Out of bounds
     }
 
     public Entity getEntity(int x, int y) {
@@ -106,28 +96,40 @@ public class World {
         return SIZE;
     }
 
+    public long getSeed() {
+        return worldSeed.getOriginalSeed();
+    }
+    
+    public WorldSeed getWorldSeed() {
+        return worldSeed;
+    }
+    
+    public String getSeedString() {
+        return worldSeed.toSeedString();
+    }
+
     public CopyOnWriteArrayList<Entity> getEntities() {
         return entities;
     }
 
     public CopyOnWriteArrayList<Tile> getTiles() {
+        CopyOnWriteArrayList<Tile> tiles = new CopyOnWriteArrayList<>();
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                tiles.add(tileGrid[x][y]);
+            }
+        }
         return tiles;
     }
 
     public Map<Type, Integer> countEntitiesInAllBiomes() {
-        // Map to store biome type to set of tiles in that biome
-        Map<Type, Set<Tile>> biomeTiles = new HashMap<>();
-        for (Tile tile : tiles) {
-            biomeTiles.computeIfAbsent(tile.getType(), k -> new HashSet<>()).add(tile);
-        }
-
-        // Map to store biome type to entity count
+        // Initialize counts for all biome types
         Map<Type, Integer> biomeEntityCounts = new HashMap<>();
-        for (Type type : biomeTiles.keySet()) {
+        for (Type type : Type.values()) {
             biomeEntityCounts.put(type, 0);
         }
 
-        // Count entities in each biome
+        // Count entities in each biome (optimized with direct tile access)
         for (Entity entity : entities) {
             Tile entityTile = getTile(entity.getX(), entity.getY());
             if (entityTile != null) {
@@ -137,5 +139,46 @@ public class World {
         }
 
         return biomeEntityCounts;
+    }
+
+    /**
+     * Appends biome entity counts to a CSV file. Writes header if file is new.
+     * @param biomeEntityCounts Map of biome type to entity count
+     * @param step The simulation step number (can use World.GLOBAL_STEP_COUNT)
+     * @param filePath The file path to write to
+     */
+    // Method to update world seed (for WorldBuilder integration)
+    public void updateWorldSeed(WorldSeed newSeed) {
+        this.worldSeed = newSeed;
+        generateWorldFromSeed();
+    }
+    
+    // Method to get biome at coordinates directly from seed
+    public Type getBiomeType(int x, int y) {
+        return worldSeed.getBiome(x, y);
+    }
+    
+    public static void exportBiomeCountsToCSV(Map<Type, Integer> biomeEntityCounts, int step, String filePath) {
+        boolean writeHeader = false;
+        File file = new File(filePath);
+        if (!file.exists()) {
+            writeHeader = true;
+        }
+        try (FileWriter writer = new FileWriter(file, true)) {
+            if (writeHeader) {
+                writer.write("Step");
+                for (Type type : Type.values()) {
+                    writer.write("," + type.name());
+                }
+                writer.write("\n");
+            }
+            writer.write(Integer.toString(step));
+            for (Type type : Type.values()) {
+                writer.write("," + biomeEntityCounts.getOrDefault(type, 0));
+            }
+            writer.write("\n");
+        } catch (IOException e) {
+            System.err.println("Error writing biome counts to CSV: " + e.getMessage());
+        }
     }
 }
