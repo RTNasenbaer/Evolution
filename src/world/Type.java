@@ -61,24 +61,30 @@ public enum Type {
 
     public double getEnvironmentalStress(Entity entity) {
         // Calculate environmental stress based on biome conditions
-        // This affects entity metabolism and survival
+        // Higher stress = more energy consumption
+        // Entity's adaptation trait will reduce this stress
         double stress = 1.0;
 
-        // Temperature stress (reduced impact)
-        if (temperature < -10 || temperature > 35) {
-            stress += Math.abs(temperature) / 200.0; // Reduced from 100.0
+        // Temperature stress - extreme temps are harsh
+        double tempDeviation = Math.abs(temperature - 20); // 20°C is ideal
+        if (tempDeviation > 15) {
+            stress += tempDeviation / 100.0;
         }
 
-        // Humidity stress (both too dry and too wet are stressful, reduced impact)
-        if (humidity < 20 || humidity > 85) {
-            stress += Math.abs(50 - humidity) / 200.0; // Reduced from 100.0
+        // Humidity stress - both too dry and too wet are challenging
+        double humidityDeviation = Math.abs(humidity - 50); // 50% is ideal
+        if (humidityDeviation > 30) {
+            stress += humidityDeviation / 150.0;
         }
 
-        // Elevation stress (high altitude is challenging, reduced impact)
-        if (elevation > 400) {
-            stress += elevation / 2000.0; // Reduced from 1000.0
+        // Elevation stress - high altitude is challenging
+        if (elevation > 300) {
+            stress += elevation / 1500.0;
+        } else if (elevation < 0) {
+            stress += Math.abs(elevation) / 1000.0; // underwater penalty
         }
 
-        return Math.max(0.7, Math.min(2.0, stress)); // Clamp between 0.7x and 2.0x (reduced from 0.5x-3.0x)
+        // Return stress multiplier (1.0 = normal, higher = harsher)
+        return Math.max(1.0, Math.min(3.0, stress)); // Range: 1.0x to 3.0x
     }
 }

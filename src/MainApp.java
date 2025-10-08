@@ -20,8 +20,10 @@ import ui.ConfigDisplay;
 import ui.GraphDisplay;
 import ui.ResponsiveLayoutManager;
 import ui.WorldDisplay;
+import world.TraitTestingSeed;
 import world.Type;
 import world.World;
+import world.WorldSeed;
 
 public class MainApp extends Application {
     private World world;
@@ -53,7 +55,8 @@ public class MainApp extends Application {
         setupLayout();
         setupEventHandlers();
 
-        world.addEntity(Entity.createDefaultEntity(0, 0));
+        // Spawn initial entities with pattern
+        promptInitialEntitySpawn();
 
         renderWorld();
         updateSeedDisplay();
@@ -346,8 +349,11 @@ public class MainApp extends Application {
         Entity entity = world.getEntity(x, y);
         if (entity != null) {
             String content = String.format(
-                    "Age: %d\nEnergy: %.2f\nSpeed: %.2f\nMass: %.2f\nAlive: %s",
-                    entity.getAge(), entity.getEnergy(), entity.getSpeed(), entity.getMass(), entity.isAlive());
+                    "Age: %d\nEnergy: %.2f\n\n--- Traits ---\nEndurance: %.2f\nAdaptation: %.2f\nMobility: %.2f\nEfficiency: %.2f\n\nAlive: %s",
+                    entity.getAge(), entity.getEnergy(),
+                    entity.getEndurance(), entity.getAdaptation(),
+                    entity.getMobility(), entity.getEfficiency(),
+                    entity.isAlive());
 
             ui.DialogUtils.showInfo(
                     "Entity Inspector",
@@ -362,14 +368,34 @@ public class MainApp extends Application {
         Map<Type, Integer> entityCounts = world.countEntitiesInAllBiomes();
         int totalEntities = entityCounts.values().stream().mapToInt(Integer::intValue).sum();
 
+        List<Entity> entities = world.getEntities();
+        double avgEnergy = entities.isEmpty() ? 0.0
+                : entities.stream().mapToDouble(Entity::getEnergy).average().orElse(0.0);
+        double avgAge = entities.isEmpty() ? 0.0 : entities.stream().mapToDouble(Entity::getAge).average().orElse(0.0);
+
         String content = String.format(
-                "Total Entities: %d\nGrass Biome: %d\nForest Biome: %d\nMountain Biome: %d\nDesert Biome: %d\nSteps Completed: %d",
+                "Total Entities: %d\nSteps Completed: %d\nAverage Energy: %.1f\nAverage Age: %.0f\n\n" +
+                        "=== Biome Distribution ===\n" +
+                        "🌿 Grass: %d\n" +
+                        "🌲 Forest: %d\n" +
+                        "⛰️  Mountain: %d\n" +
+                        "🏜️  Desert: %d\n" +
+                        "🌊 Ocean: %d\n" +
+                        "🌋 Volcanic: %d\n" +
+                        "❄️  Tundra: %d\n" +
+                        "🌿 Swamp: %d",
                 totalEntities,
+                stepCounter,
+                avgEnergy,
+                avgAge,
                 entityCounts.getOrDefault(Type.GRASS, 0),
                 entityCounts.getOrDefault(Type.FOREST, 0),
                 entityCounts.getOrDefault(Type.MOUNTAIN, 0),
                 entityCounts.getOrDefault(Type.DESERT, 0),
-                stepCounter);
+                entityCounts.getOrDefault(Type.OCEAN, 0),
+                entityCounts.getOrDefault(Type.VOLCANIC, 0),
+                entityCounts.getOrDefault(Type.TUNDRA, 0),
+                entityCounts.getOrDefault(Type.SWAMP, 0));
 
         ui.DialogUtils.showInfo("World Statistics", "Current World State", content);
     }
@@ -418,6 +444,57 @@ public class MainApp extends Application {
         batchThread.start();
     }
 
+    private void promptInitialEntitySpawn() {
+        // Dialog for entity spawning configuration
+        javafx.scene.control.Dialog<javafx.scene.control.ButtonType> dialog = ui.DialogUtils
+                .createCustomDialog("Initial Entities", "Configure initial entity spawning");
+
+        VBox content = new VBox(AppStyles.SPACING_MEDIUM);
+        content.setPadding(new javafx.geometry.Insets(AppStyles.PADDING_MEDIUM));
+
+        Label countLabel = new Label("Number of entities:");
+        countLabel.setStyle(AppStyles.getLabelStyle());
+        javafx.scene.control.TextField countField = new javafx.scene.control.TextField("10");
+        countField.setStyle(AppStyles.getTextFieldStyle());
+
+        Label patternLabel = new Label("Spawn pattern:");
+        patternLabel.setStyle(AppStyles.getLabelStyle());
+        javafx.scene.control.ComboBox<String> patternBox = new javafx.scene.control.ComboBox<>();
+        patternBox.getItems().addAll("Circle", "Grid", "Random");
+        patternBox.setValue("Circle");
+        patternBox.setStyle(AppStyles.getTextFieldStyle());
+
+        content.getChildren().addAll(countLabel, countField, patternLabel, patternBox);
+        dialog.getDialogPane().setContent(content);
+
+        dialog.getDialogPane().getButtonTypes().addAll(
+                javafx.scene.control.ButtonType.OK,
+                javafx.scene.control.ButtonType.CANCEL);
+
+        javafx.scene.control.Button okBtn = (javafx.scene.control.Button) dialog.getDialogPane()
+                .lookupButton(javafx.scene.control.ButtonType.OK);
+        javafx.scene.control.Button cancelBtn = (javafx.scene.control.Button) dialog.getDialogPane()
+                .lookupButton(javafx.scene.control.ButtonType.CANCEL);
+
+        if (okBtn != null)
+            okBtn.setStyle(AppStyles.getPrimaryButtonStyle());
+        if (cancelBtn != null)
+            cancelBtn.setStyle(AppStyles.getSecondaryButtonStyle());
+
+        java.util.Optional<javafx.scene.control.ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
+            try {
+                int count = Integer.parseInt(countField.getText());
+                String pattern = patternBox.getValue().toLowerCase();
+                world.spawnEntities(count, pattern, world.getSeed());
+                statusLabel.setText("Spawned " + count + " entities in " + pattern + " pattern");
+            } catch (NumberFormatException e) {
+                statusLabel.setText("Invalid entity count");
+            }
+        }
+    }
+
     private void initializeWorld() {
         // Create custom dialog with text field and browse button
         javafx.scene.control.Dialog<javafx.scene.control.ButtonType> dialog = ui.DialogUtils
@@ -429,13 +506,13 @@ public class MainApp extends Application {
 
         // Label
         javafx.scene.control.Label label = new javafx.scene.control.Label(
-                "Seed (leave empty for random world):");
+                "Seed (empty=random, 'test'=trait testing zones):");
         label.setStyle(AppStyles.getLabelStyle());
 
         // Text field and browse button in horizontal layout
         javafx.scene.layout.HBox inputBox = new javafx.scene.layout.HBox(AppStyles.SPACING_SMALL);
         javafx.scene.control.TextField seedField = new javafx.scene.control.TextField();
-        seedField.setPromptText("Enter seed or browse file...");
+        seedField.setPromptText("Enter seed, type 'test', or browse file...");
         seedField.setPrefWidth(300);
         seedField.setStyle(AppStyles.getTextFieldStyle());
 
@@ -485,7 +562,12 @@ public class MainApp extends Application {
 
         if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
             String seedInput = seedField.getText().trim();
-            if (!seedInput.isEmpty()) {
+            if (seedInput.equalsIgnoreCase("test")) {
+                WorldSeed testSeed = TraitTestingSeed.generate();
+                world = new World(testSeed);
+                System.out.println("Generated TRAIT TESTING world");
+                System.out.println(TraitTestingSeed.getDescription());
+            } else if (!seedInput.isEmpty()) {
                 try {
                     world = new World(seedInput);
                     System.out.println("Generated world with seed: " + world.getWorldSeed().getDescription());

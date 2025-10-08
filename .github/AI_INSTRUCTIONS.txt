@@ -1,0 +1,27 @@
+⛔ DOCUMENTATION POLICY FOR AI ASSISTANTS ⛔
+
+This project maintains EXACTLY 11 markdown files:
+- 1 in root (README.md)
+- 9 in docs/ 
+- 1 in analysis/
+
+DO NOT CREATE:
+❌ CHANGELOG_*.md
+❌ QUICK_START_*.md
+❌ IMPLEMENTATION_*.md
+❌ MIGRATION_*.md
+❌ REFACTORING_*.md
+❌ TRAIT_SYSTEM_*.md
+❌ Any other .md files
+
+IF YOU FIND FILES LIKE THIS:
+1. DELETE them immediately
+2. Update docs/INDEX.md if needed
+3. Verify count: (Get-ChildItem -Recurse -Filter "*.md").Count = 11
+
+TO ADD CONTENT:
+✅ Update existing files in docs/
+✅ Add sections to ARCHITECTURE.md, UI_GUIDE.md, etc.
+✅ DO NOT create new files
+
+See docs/INDEX.md for complete policy.

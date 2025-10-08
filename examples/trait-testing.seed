@@ -1,0 +1,65 @@
+# Evolution Simulation - Trait Testing Seed
+# This seed is designed to test how entities with varying traits adapt to different terrains
+# Layout: Distinct biome zones to observe trait-terrain interactions
+
+SEED_NAME: trait-testing-zones
+DESCRIPTION: A world with distinct biome patches for testing trait adaptation. Each quadrant features different environmental challenges to observe how Endurance, Adaptation, Mobility, and Efficiency traits help entities survive.
+
+# Biome Distribution Strategy:
+# - Northwest: FOREST (excellent habitat) - low stress, high food
+# - Northeast: DESERT (harsh) - high temp stress, low food
+# - Southwest: TUNDRA (challenging) - cold stress, moderate food  
+# - Southeast: MOUNTAIN (harsh terrain) - elevation stress, difficult movement
+# - Center: GRASS (baseline) - neutral testing ground
+# - Scattered: SWAMP, OCEAN, VOLCANIC (extreme challenges)
+
+# This layout allows observation of:
+# 1. High Adaptation entities thriving in DESERT/VOLCANIC (extreme temps)
+# 2. High Endurance entities navigating MOUNTAIN/SWAMP (difficult terrain)
+# 3. High Mobility entities covering ground in GRASS/FOREST
+# 4. High Efficiency entities surviving in low-food biomes (DESERT/TUNDRA)
+
+WORLD_SIZE: 50
+
+# Zone definitions (procedural generation with targeted biomes)
+# Using numeric seed with custom modifications
+
+BASE_SEED: 42424242
+
+# Custom biome placement for trait testing
+# Format: BIOME_TYPE X_START Y_START X_END Y_END
+
+# Northwest quadrant - FOREST (excellent habitat)
+ZONE: FOREST 0 0 24 24
+
+# Northeast quadrant - DESERT (harsh, hot)
+ZONE: DESERT 25 0 49 24
+
+# Southwest quadrant - TUNDRA (cold, challenging)
+ZONE: TUNDRA 0 25 24 49
+
+# Southeast quadrant - MOUNTAIN (harsh terrain, elevation)
+ZONE: MOUNTAIN 25 25 49 49
+
+# Center baseline - GRASS (neutral ground)
+ZONE: GRASS 15 15 34 34
+
+# Strategic extreme challenges scattered throughout
+ZONE: VOLCANIC 5 5 8 8
+ZONE: VOLCANIC 41 5 44 8
+ZONE: VOLCANIC 5 41 8 44
+ZONE: VOLCANIC 41 41 44 44
+
+ZONE: SWAMP 20 5 29 9
+ZONE: SWAMP 20 40 29 44
+ZONE: SWAMP 5 20 9 29
+ZONE: SWAMP 40 20 44 29
+
+ZONE: OCEAN 15 20 19 29
+ZONE: OCEAN 30 20 34 29
+
+# Testing recommendations:
+# 1. Spawn entities at center (25, 25) and observe migration patterns
+# 2. Track which traits correlate with survival in each quadrant
+# 3. Run 1000+ steps to see multi-generation adaptation
+# 4. Export entity_details CSV for trait-biome correlation analysis

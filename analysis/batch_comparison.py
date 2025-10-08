@@ -33,7 +33,7 @@ class BatchComparator:
         print("Loading batch simulation data...")
         
         if batch_file is None:
-            batch_files = list(self.data_dir.glob("*batch_results*.csv"))
+            batch_files = list(self.data_dir.glob("*batch*.csv"))
             if batch_files:
                 batch_file = str(max(batch_files, key=lambda p: p.stat().st_mtime))
         
@@ -44,16 +44,14 @@ class BatchComparator:
             
             # Aggregate to seed level for comparison
             # Keep simulation metadata (same for all entities in a run)
-            meta_cols = ['Seed', 'FinalEntityCount', 'MaxEntityCount', 'StepsRun', 'ExecutionTime(ms)']
+            meta_cols = ['FinalEntityCount', 'MaxEntityCount', 'StepsRun', 'ExecutionTime(ms)']
             metadata = raw_data.groupby('Seed')[meta_cols].first()
             
             # Calculate trait averages per seed
-            trait_cols = ['Energy', 'Age', 'Speed', 'Mass', 'EnergyEfficiency', 
-                         'ReproductionThreshold', 'SightRange', 'MetabolismRate', 'MaxLifespan']
+            trait_cols = ['Energy', 'Age', 'Endurance', 'Adaptation', 'Mobility', 'Efficiency']
             
             trait_avgs = raw_data.groupby('Seed')[trait_cols].mean()
-            trait_avgs.columns = ['Avg' + col if col not in ['Energy', 'Age'] else 'Average' + col 
-                                  for col in trait_avgs.columns]
+            trait_avgs.columns = ['Avg' + col for col in trait_avgs.columns]
             
             # Combine metadata and trait averages
             self.batch_data = metadata.join(trait_avgs).reset_index()
@@ -169,8 +167,7 @@ class BatchComparator:
                                            bins=[-1, 0, 1, 5, 100],
                                            labels=['Extinct', 'Critical', 'Surviving', 'Thriving'])
         
-        trait_cols = ['AvgSpeed', 'AvgMass', 'AvgEnergyEfficiency', 
-                     'AvgSightRange', 'AvgMetabolismRate', 'AvgReproductionThreshold']
+        trait_cols = ['AvgEndurance', 'AvgAdaptation', 'AvgMobility', 'AvgEfficiency']
         
         # Check if columns exist (handle both old and new format)
         if not all(col in self.batch_data.columns for col in trait_cols):

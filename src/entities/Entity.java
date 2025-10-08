@@ -8,52 +8,50 @@ public class Entity {
     private int x;
     private int y;
     private double energy;
-    private double speed;
-    private double mass;
-
-    // Genetic traits
-    private double energyEfficiency; // How efficiently the entity uses energy for movement
-    private double reproductionThreshold; // Energy threshold for reproduction
-    private double sightRange; // Detection range for food
-    private double metabolismRate; // Energy consumption per tick
-    private int maxLifespan; // Maximum age in ticks
     private int age; // Current age in ticks
 
-    // Constants for optimization
-    private static final double MUTATION_RATE = 0.1;
-    private static final double MUTATION_STRENGTH = 0.1;
-    private static final double ENERGY_FORMULA_CONSTANT = 0.1; // Reduced from 0.5 for better balance
+    // Genetic traits (4 core traits for terrain adaptation)
+    private double endurance; // 0.5-2.0: Affects movement cost and stamina (lower = less movement cost)
+    private double adaptation; // 0.5-2.0: Resistance to harsh climates (higher = better in extreme temps/humidity)
+    private double mobility; // 0.5-2.0: Base movement speed (higher = faster, but costs more energy)
+    private double efficiency; // 0.5-2.0: Energy consumption rate (higher = lower metabolism, reproduces earlier)
 
-    public Entity(int x, int y, double energy, double speed, double mass) {
-        this(x, y, energy, speed, mass, 1.0, 40.0, World.SIZE * 0.15, 0.05, 1000, 0);
+    // Constants for optimization
+    private static final double MUTATION_RATE = 0.15; // Increased to 15% for more variation
+    private static final double MUTATION_STRENGTH = 0.15; // Stronger mutations for faster adaptation
+    private static final double ENERGY_FORMULA_CONSTANT = 0.08; // Movement energy cost
+    private static final double BASE_REPRODUCTION_THRESHOLD = 50.0; // Base energy for reproduction
+    private static final double BASE_METABOLISM = 0.04; // Base energy loss per tick
+    private static final double SIGHT_RANGE = 12.0; // Fixed sight range for all entities
+    private static final int BASE_LIFESPAN = 800; // Fixed lifespan
+
+    public Entity(int x, int y, double energy) {
+        this(x, y, energy, 1.0, 1.0, 1.0, 1.0, 0);
     }
 
-    public Entity(int x, int y, double energy, double speed, double mass,
-            double energyEfficiency, double reproductionThreshold, double sightRange,
-            double metabolismRate, int maxLifespan, int age) {
+    public Entity(int x, int y, double energy, double endurance, double adaptation,
+            double mobility, double efficiency, int age) {
         this.x = x;
         this.y = y;
         this.energy = energy;
-        this.speed = speed;
-        this.mass = mass;
-        this.energyEfficiency = energyEfficiency;
-        this.reproductionThreshold = reproductionThreshold;
-        this.sightRange = sightRange;
-        this.metabolismRate = metabolismRate;
-        this.maxLifespan = maxLifespan;
+        this.endurance = endurance;
+        this.adaptation = adaptation;
+        this.mobility = mobility;
+        this.efficiency = efficiency;
         this.age = age;
     }
 
-    // Example: Adjust mass to make movement more expensive
+    // Create entity with default balanced traits
     public static Entity createDefaultEntity(int x, int y) {
-        return new Entity(x, y, 50, 1, 2); // Starting energy: 50, speed: 1, mass: 2
+        return new Entity(x, y, 60.0); // Starting energy: 60
     }
 
     public void moveRandomly(World world) {
         while (true) {
             double angle = Math.random() * 2 * Math.PI;
-            int dx = (int) Math.round(speed * Math.cos(angle));
-            int dy = (int) Math.round(speed * Math.sin(angle));
+            // Mobility affects movement distance
+            int dx = (int) Math.round(mobility * Math.cos(angle));
+            int dy = (int) Math.round(mobility * Math.sin(angle));
             int newX = this.x + dx;
             int newY = this.y + dy;
 
@@ -72,8 +70,8 @@ public class Entity {
         int closestY = -1;
         double minDist = Double.MAX_VALUE;
 
-        // Optimize search by only checking within sight range
-        int searchRadius = (int) Math.ceil(sightRange);
+        // Optimize search by only checking within fixed sight range
+        int searchRadius = (int) Math.ceil(SIGHT_RANGE);
         int startX = Math.max(0, this.x - searchRadius);
         int endX = Math.min(World.SIZE - 1, this.x + searchRadius);
         int startY = Math.max(0, this.y - searchRadius);
@@ -85,7 +83,7 @@ public class Entity {
                 Tile tile = world.getTile(x, y);
                 if (tile != null && tile.hasFood()) {
                     double dist = Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2));
-                    if (dist < minDist && dist <= sightRange) {
+                    if (dist < minDist && dist <= SIGHT_RANGE) {
                         minDist = dist;
                         closestX = x;
                         closestY = y;
@@ -97,8 +95,8 @@ public class Entity {
         // If food was found within the range, move in its direction
         if (closestX != -1 && closestY != -1) {
             double angle = Math.atan2(closestY - this.y, closestX - this.x);
-            int dx = (int) Math.round(speed * Math.cos(angle));
-            int dy = (int) Math.round(speed * Math.sin(angle));
+            int dx = (int) Math.round(mobility * Math.cos(angle));
+            int dy = (int) Math.round(mobility * Math.sin(angle));
             int newX = this.x + dx;
             int newY = this.y + dy;
 
@@ -126,41 +124,40 @@ public class Entity {
         return energy;
     }
 
-    public double getSpeed() {
-        return speed;
-    }
-
-    public double getMass() {
-        return mass;
-    }
-
-    public double getEnergyEfficiency() {
-        return energyEfficiency;
-    }
-
-    public double getReproductionThreshold() {
-        return reproductionThreshold;
-    }
-
-    public double getSightRange() {
-        return sightRange;
-    }
-
-    public double getMetabolismRate() {
-        return metabolismRate;
-    }
-
-    public int getMaxLifespan() {
-        return maxLifespan;
-    }
-
     public int getAge() {
         return age;
     }
 
+    public double getEndurance() {
+        return endurance;
+    }
+
+    public double getAdaptation() {
+        return adaptation;
+    }
+
+    public double getMobility() {
+        return mobility;
+    }
+
+    public double getEfficiency() {
+        return efficiency;
+    }
+
+    public double getReproductionThreshold() {
+        return BASE_REPRODUCTION_THRESHOLD / efficiency; // Higher efficiency = reproduce sooner
+    }
+
+    public double getSightRange() {
+        return SIGHT_RANGE;
+    }
+
     public void moveTo(int x, int y) {
         double distance = Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2));
-        double energyCost = (ENERGY_FORMULA_CONSTANT * mass * speed * speed * distance) / energyEfficiency;
+        // Energy cost: mobility and endurance both matter
+        // Higher mobility = faster but more energy
+        // Higher endurance = more energy cost for moving
+        double energyCost = ENERGY_FORMULA_CONSTANT * endurance * mobility * mobility * distance;
         if (energy >= energyCost) {
             this.energy -= energyCost;
             // Ensure the entity stays within the world boundaries
@@ -173,9 +170,12 @@ public class Entity {
     public void moveBy(int dx, int dy, world.Type biomeType) {
         double distance = Math.sqrt(dx * dx + dy * dy);
         double movementModifier = biomeType != null ? biomeType.getMovementModifier() : 1.0;
-        double adjustedSpeed = speed * movementModifier;
-        double energyCost = (ENERGY_FORMULA_CONSTANT * mass * adjustedSpeed * adjustedSpeed * distance)
-                / energyEfficiency;
+
+        // Terrain difficulty affects low-endurance entities more
+        double terrainPenalty = movementModifier < 1.0 ? (2.0 - movementModifier) / endurance : 1.0;
+
+        double energyCost = ENERGY_FORMULA_CONSTANT * endurance * mobility * mobility * distance * terrainPenalty;
+
         if (energy >= energyCost) {
             this.energy -= energyCost;
             // Ensure the entity stays within the world boundaries
@@ -200,11 +200,12 @@ public class Entity {
     }
 
     public boolean isAlive() {
-        return energy > 1.0 && age < maxLifespan; // Entity is alive if energy > 1.0 and not too old
+        return energy > 1.0 && age < BASE_LIFESPAN; // Entity is alive if energy > 1.0 and not too old
     }
 
     public void reproduce(World world) {
-        if (this.energy >= reproductionThreshold) {
+        double threshold = getReproductionThreshold();
+        if (this.energy >= threshold) {
             // Reduce energy by half for reproduction
             this.energy /= 2;
 
@@ -221,21 +222,14 @@ public class Entity {
     }
 
     private Entity createOffspring(int x, int y) {
-        // Use class constants for mutation parameters
+        // Mutate the 4 core traits
+        double newEndurance = mutate(this.endurance, MUTATION_RATE, MUTATION_STRENGTH, 0.5, 2.0);
+        double newAdaptation = mutate(this.adaptation, MUTATION_RATE, MUTATION_STRENGTH, 0.5, 2.0);
+        double newMobility = mutate(this.mobility, MUTATION_RATE, MUTATION_STRENGTH, 0.5, 2.0);
+        double newEfficiency = mutate(this.efficiency, MUTATION_RATE, MUTATION_STRENGTH, 0.5, 2.0);
 
-        // Mutate traits with small random variations
-        double newSpeed = mutate(this.speed, MUTATION_RATE, MUTATION_STRENGTH, 0.5, 2.5);
-        double newMass = mutate(this.mass, MUTATION_RATE, MUTATION_STRENGTH, 1.0, 4.0);
-        double newEnergyEfficiency = mutate(this.energyEfficiency, MUTATION_RATE, MUTATION_STRENGTH, 0.7, 1.5);
-        double newReproductionThreshold = mutate(this.reproductionThreshold, MUTATION_RATE, MUTATION_STRENGTH, 20.0,
-                80.0);
-        double newSightRange = mutate(this.sightRange, MUTATION_RATE, MUTATION_STRENGTH, 3.0, World.SIZE * 0.4);
-        double newMetabolismRate = mutate(this.metabolismRate, MUTATION_RATE, MUTATION_STRENGTH, 0.02, 0.15);
-        int newMaxLifespan = (int) mutate(this.maxLifespan, MUTATION_RATE, MUTATION_STRENGTH, 600, 1500);
-
-        return new Entity(x, y, this.energy, newSpeed, newMass,
-                newEnergyEfficiency, newReproductionThreshold, newSightRange,
-                newMetabolismRate, newMaxLifespan, 0);
+        return new Entity(x, y, this.energy, newEndurance, newAdaptation,
+                newMobility, newEfficiency, 0);
     }
 
     private double mutate(double value, double mutationRate, double mutationStrength, double min, double max) {
@@ -253,7 +247,12 @@ public class Entity {
         // Apply metabolism (energy loss over time) with environmental stress
         Tile currentTile = world.getTile(this.x, this.y);
         double environmentalStress = currentTile != null ? currentTile.getType().getEnvironmentalStress(this) : 1.0;
-        energy -= metabolismRate * environmentalStress;
+
+        // Metabolism: lower efficiency = higher energy consumption
+        // Adaptation reduces environmental stress impact
+        double metabolismRate = BASE_METABOLISM / efficiency;
+        double adaptedStress = 1.0 + (environmentalStress - 1.0) / adaptation;
+        energy -= metabolismRate * adaptedStress;
 
         // Move the entity
         moveDirected(world);
@@ -264,7 +263,8 @@ public class Entity {
         }
 
         // Check for reproduction
-        if (this.energy >= reproductionThreshold) {
+        double threshold = getReproductionThreshold();
+        if (this.energy >= threshold) {
             reproduce(world);
         }
 

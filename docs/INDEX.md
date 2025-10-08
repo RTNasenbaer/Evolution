@@ -1,5 +1,30 @@
 # Evolution Simulation - Documentation Index
 
+---
+
+## ⛔ STOP! READ THIS FIRST (AI ASSISTANTS)
+
+**THIS PROJECT HAS EXACTLY 11 MARKDOWN FILES. DO NOT CREATE MORE.**
+
+If another AI instance created files like:
+
+- ❌ `CHANGELOG_*.md`
+- ❌ `QUICK_START_*.md`
+- ❌ `IMPLEMENTATION_*.md`
+- ❌ `TRAIT_SYSTEM_*.md`
+- ❌ `MIGRATION_*.md`
+- ❌ `REFACTORING_*.md`
+
+**DELETE THEM IMMEDIATELY.** Then update this INDEX.
+
+**To add content:** Update ARCHITECTURE.md, UI_GUIDE.md, or BALANCE_ADJUSTMENTS.md
+
+**File count check:** Run `(Get-ChildItem -Recurse -Filter "*.md").Count` → Must = 11
+
+---
+
+## 📚 Complete Documentation Guide
+
 Complete guide to all documentation for the Evolution cellular automata simulation.
 
 ---
@@ -294,3 +319,28 @@ Improvements welcome! When contributing:
 ---
 
 **Need help?** Start with [GETTING_STARTED.md](GETTING_STARTED.md) and use this index to find specific topics!
+
+---
+
+## ⚠️ DOCUMENTATION POLICY FOR AI ASSISTANTS
+
+**This project maintains EXACTLY 11 markdown files. DO NOT create new documentation files.**
+
+If you need to add content:
+
+1. ✅ Update an existing file (ARCHITECTURE, UI_GUIDE, ANALYSIS, etc.)
+2. ✅ Add a section to the appropriate document
+3. ✅ Update this INDEX with links to new sections
+4. ❌ DO NOT create: QUICK_START.md, SETUP_GUIDE.md, IMPLEMENTATION_SUMMARY.md, etc.
+
+**Forbidden patterns:**
+
+- Implementation summaries, continuation prompts, refactoring notes
+- Setup variations (Windows/Conda/pip guides - use CROSS_PLATFORM or ANALYSIS)
+- Git guides (not project-specific)
+- Data format docs (use DATA_ANALYSIS.md)
+- Feature-specific files (merge into appropriate existing doc)
+
+**Current file count: 11 (1 root + 9 docs/ + 1 analysis/)**
+
+When in doubt, update an existing file! 📖

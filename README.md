@@ -31,11 +31,12 @@ The Evolution simulation creates a 100x100 grid world populated with different b
 
 ### Simulation Features
 
-- **Genetic Traits** - Entities have speed, mass, energy efficiency, sight range, and more
+- **4-Trait Genetic System** - Endurance, Adaptation, Mobility, and Efficiency with strong terrain interactions
 - **Energy System** - Physics-based energy consumption and food-seeking behavior
-- **Reproduction** - Asexual reproduction with trait mutation
-- **Multiple Biomes** - Grassland, Forest, Water, Desert, Mountain, Snow with distinct properties
+- **Reproduction** - Asexual reproduction with 15% mutation rate for faster adaptation
+- **Multiple Biomes** - 8 distinct biomes (GRASS, FOREST, DESERT, TUNDRA, MOUNTAIN, SWAMP, OCEAN, VOLCANIC) with unique challenges
 - **World Seeds** - Reproducible worlds with import/export capability
+- **Trait Testing Seed** - Specialized world with biome quadrants for analyzing trait-terrain adaptation
 
 ### Data & Analysis
 

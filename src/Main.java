@@ -6,6 +6,7 @@ import java.util.Scanner;
 import entities.Entity;
 import export.CSVExporter;
 import ui.TerminalDisplay;
+import world.TraitTestingSeed;
 import world.Type;
 import world.World;
 import world.WorldSeed;
@@ -67,12 +68,21 @@ public class Main {
     }
 
     private void initializeWorld() {
-        System.out.print("Enter world seed (leave empty for random): ");
+        System.out.println("\n--- World Generation Options ---");
+        System.out.println("1. Random world (leave empty)");
+        System.out.println("2. Enter custom seed");
+        System.out.println("3. Type 'test' for trait testing zones");
+        System.out.print("\nChoice: ");
         String seedInput = scanner.nextLine().trim();
 
         if (seedInput.isEmpty()) {
             world = new World();
             System.out.println("✓ Generated random world: " + world.getWorldSeed().getDescription());
+        } else if (seedInput.equalsIgnoreCase("test")) {
+            WorldSeed testSeed = TraitTestingSeed.generate();
+            world = new World(testSeed);
+            System.out.println("✓ Generated TRAIT TESTING world");
+            System.out.println("  " + TraitTestingSeed.getDescription());
         } else {
             try {
                 world = new World(seedInput);
@@ -83,9 +93,11 @@ public class Main {
             }
         }
 
-        // Add initial entity
-        world.addEntity(Entity.createDefaultEntity(0, 0));
-        System.out.println("✓ World initialized with 1 entity at (0, 0)");
+        // Add initial entity at center for trait testing world
+        int startX = seedInput.equalsIgnoreCase("test") ? World.SIZE / 2 : 0;
+        int startY = seedInput.equalsIgnoreCase("test") ? World.SIZE / 2 : 0;
+        world.addEntity(Entity.createDefaultEntity(startX, startY));
+        System.out.println("✓ World initialized with 1 entity at (" + startX + ", " + startY + ")");
     }
 
     private boolean handleCommand(String input) {

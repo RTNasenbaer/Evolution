@@ -306,8 +306,7 @@ public class BatchSimulation {
         try (FileWriter writer = new FileWriter(fileName)) {
             // Write header for entity-level data
             writer.write("Seed,FinalEntityCount,MaxEntityCount,StepsRun,ExecutionTime(ms),");
-            writer.write("EntityID,X,Y,Energy,Age,Speed,Mass,EnergyEfficiency,ReproductionThreshold,");
-            writer.write("SightRange,MetabolismRate,MaxLifespan,BiomeType\n");
+            writer.write("EntityID,X,Y,Energy,Age,Endurance,Adaptation,Mobility,Efficiency\n");
 
             // Write one row per entity in each simulation
             for (SimulationResult result : results) {
@@ -319,14 +318,14 @@ public class BatchSimulation {
 
                 // If no entities survived, write one summary row with null entity data
                 if (result.getFinalEntities().isEmpty()) {
-                    writer.write(String.format("%d,%d,%d,%d,%d,,,,,,,,,,,,,\n",
+                    writer.write(String.format("%d,%d,%d,%d,%d,,,,,,,,,\n",
                             seed, finalCount, maxCount, steps, execTime));
                 } else {
                     // Write each entity as a row
                     int entityId = 0;
                     for (Entity entity : result.getFinalEntities()) {
                         writer.write(
-                                String.format("%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%d,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%s\n",
+                                String.format("%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%d,%.3f,%.3f,%.3f,%.3f\n",
                                         seed,
                                         finalCount,
                                         maxCount,
@@ -337,14 +336,10 @@ public class BatchSimulation {
                                         entity.getY(),
                                         entity.getEnergy(),
                                         entity.getAge(),
-                                        entity.getSpeed(),
-                                        entity.getMass(),
-                                        entity.getEnergyEfficiency(),
-                                        entity.getReproductionThreshold(),
-                                        entity.getSightRange(),
-                                        entity.getMetabolismRate(),
-                                        entity.getMaxLifespan(),
-                                        "UNKNOWN")); // BiomeType will be determined by Python from X,Y if needed
+                                        entity.getEndurance(),
+                                        entity.getAdaptation(),
+                                        entity.getMobility(),
+                                        entity.getEfficiency()));
                     }
                 }
             }
@@ -376,5 +371,105 @@ public class BatchSimulation {
         void onSimulationCompleted(int completed, int total, SimulationResult result);
 
         void onStepCompleted(int runIndex, int step, int entityCount);
+    }
+
+    /**
+     * Main method for running batch simulations from command line
+     * Usage: java BatchSimulation [numRuns] [stepsPerRun] [initialEntities]
+     */
+    public static void main(String[] args) {
+        System.out.println("================================================================================");
+        System.out.println(" BATCH SIMULATION RUNNER");
+        System.out.println(" Generate data for analysis");
+        System.out.println("================================================================================");
+
+        // Parse command line arguments
+        int numRuns = 5;
+        int stepsPerRun = 1000;
+        int initialEntities = 10;
+
+        if (args.length > 0) {
+            try {
+                numRuns = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number of runs, using default: " + numRuns);
+            }
+        }
+        if (args.length > 1) {
+            try {
+                stepsPerRun = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid steps per run, using default: " + stepsPerRun);
+            }
+        }
+        if (args.length > 2) {
+            try {
+                initialEntities = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid initial entities, using default: " + initialEntities);
+            }
+        }
+
+        System.out.println("\nConfiguration:");
+        System.out.println("  Runs: " + numRuns);
+        System.out.println("  Steps per run: " + stepsPerRun);
+        System.out.println("  Initial entities: " + initialEntities);
+        System.out.println();
+
+        // Create batch simulation
+        BatchSimulation batchSim = new BatchSimulation();
+        BatchConfiguration config = new BatchConfiguration(
+                numRuns,
+                stepsPerRun,
+                200, // tickspeed
+                true, // use random seeds
+                initialEntities,
+                "data/batch_results_" + System.currentTimeMillis() + ".csv");
+
+        // Progress callback
+        SimulationProgressCallback callback = new SimulationProgressCallback() {
+            @Override
+            public void onSimulationCompleted(int completed, int total, SimulationResult result) {
+                System.out.println(String.format("[%d/%d] Completed - Seed: %d, Final: %d, Max: %d, Steps: %d",
+                        completed, total, result.getSeed(), result.getFinalEntityCount(),
+                        result.getMaxEntityCount(), result.getStepsRun()));
+            }
+
+            @Override
+            public void onStepCompleted(int runIndex, int step, int entityCount) {
+                // Print progress dot every 100 steps
+                if (step > 0 && step % 100 == 0) {
+                    System.out.print(".");
+                }
+            }
+        };
+
+        // Run batch simulation
+        System.out.println("Starting batch simulation...\n");
+        List<SimulationResult> results = batchSim.runBatchSimulation(config, callback);
+
+        // Print summary
+        System.out.println("\n================================================================================");
+        System.out.println("✓ Batch simulation complete!");
+        System.out.println("  Total simulations: " + results.size());
+        System.out.println("  Results saved to: " + config.getOutputFileName());
+
+        if (!results.isEmpty()) {
+            double avgFinal = results.stream()
+                    .mapToInt(SimulationResult::getFinalEntityCount).average().orElse(0);
+            double avgMax = results.stream()
+                    .mapToInt(SimulationResult::getMaxEntityCount).average().orElse(0);
+            long totalTime = results.stream()
+                    .mapToLong(SimulationResult::getExecutionTime).sum();
+
+            System.out.println("\nStatistics:");
+            System.out.println("  Average final entities: " + String.format("%.1f", avgFinal));
+            System.out.println("  Average max entities: " + String.format("%.1f", avgMax));
+            System.out.println("  Total execution time: " + totalTime + "ms");
+        }
+        System.out.println("================================================================================");
+
+        // Shutdown
+        batchSim.shutdown();
     }
 }

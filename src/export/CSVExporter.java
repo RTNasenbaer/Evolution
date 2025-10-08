@@ -55,8 +55,7 @@ public class CSVExporter {
 
     /**
      * Export detailed entity-level data for trait analysis.
-     * Format: Step,EntityID,X,Y,Energy,Age,Speed,Mass,EnergyEfficiency,
-     * ReproductionThreshold,SightRange,MetabolismRate,MaxLifespan,BiomeType,HasFood
+     * Format: Step,EntityID,X,Y,Energy,Age,Endurance,Adaptation,Mobility,Efficiency,BiomeType,HasFood
      * 
      * @param world    World instance containing entities
      * @param step     Current simulation step
@@ -69,8 +68,8 @@ public class CSVExporter {
         try (FileWriter writer = new FileWriter(fullPath, true)) {
             // Write header if new file
             if (!fileExists) {
-                writer.write("Step,EntityID,X,Y,Energy,Age,Speed,Mass,EnergyEfficiency,ReproductionThreshold,");
-                writer.write("SightRange,MetabolismRate,MaxLifespan,BiomeType,HasFood\n");
+                writer.write("Step,EntityID,X,Y,Energy,Age,Endurance,Adaptation,Mobility,Efficiency,");
+                writer.write("BiomeType,HasFood\n");
             }
 
             // Write entity data
@@ -82,19 +81,16 @@ public class CSVExporter {
                 Type biomeType = tile != null ? tile.getType() : Type.GRASS;
                 boolean hasFood = tile != null && tile.hasFood();
 
-                writer.write(String.format("%d,E%03d,%d,%d,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%s,%b\n",
+                writer.write(String.format("%d,E%03d,%d,%d,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%s,%b\n",
                         step,
                         entityId++,
                         x, y,
                         entity.getEnergy(),
                         entity.getAge(),
-                        entity.getSpeed(),
-                        entity.getMass(),
-                        entity.getEnergyEfficiency(),
-                        entity.getReproductionThreshold(),
-                        entity.getSightRange(),
-                        entity.getMetabolismRate(),
-                        entity.getMaxLifespan(),
+                        entity.getEndurance(),
+                        entity.getAdaptation(),
+                        entity.getMobility(),
+                        entity.getEfficiency(),
                         biomeType.name(),
                         hasFood));
             }

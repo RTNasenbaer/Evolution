@@ -87,13 +87,10 @@ class EvolutionAnalyzer:
         entity_stats = self.entity_data.groupby('EntityID').agg({
             'Age': 'max',
             'Energy': 'mean',
-            'Speed': 'mean',
-            'Mass': 'mean',
-            'EnergyEfficiency': 'mean',
-            'SightRange': 'mean',
-            'MetabolismRate': 'mean',
-            'ReproductionThreshold': 'mean',
-            'MaxLifespan': 'max',
+            'Endurance': 'mean',
+            'Adaptation': 'mean',
+            'Mobility': 'mean',
+            'Efficiency': 'mean',
             'Step': 'count'  # Number of steps survived
         }).reset_index()
         
@@ -104,8 +101,7 @@ class EvolutionAnalyzer:
                                         np.log1p(entity_stats['StepsSurvived'])
         
         # Traits to analyze
-        traits = ['Speed', 'Mass', 'EnergyEfficiency', 'SightRange', 
-                 'MetabolismRate', 'ReproductionThreshold']
+        traits = ['Endurance', 'Adaptation', 'Mobility', 'Efficiency']
         
         fig, axes = plt.subplots(2, 3, figsize=(18, 12))
         fig.suptitle('Trait-Survival Correlation Analysis\nCellular Automata Evolution Simulation', 
@@ -150,9 +146,10 @@ class EvolutionAnalyzer:
         biome_stats = self.entity_data.groupby('BiomeType').agg({
             'Age': 'mean',
             'Energy': 'mean',
-            'Speed': 'mean',
-            'Mass': 'mean',
-            'EnergyEfficiency': 'mean',
+            'Endurance': 'mean',
+            'Adaptation': 'mean',
+            'Mobility': 'mean',
+            'Efficiency': 'mean',
             'Step': 'count'
         }).reset_index()
         
@@ -201,7 +198,7 @@ class EvolutionAnalyzer:
         
         # 4. Trait Heatmap by Biome
         ax = axes[1, 1]
-        trait_cols = ['Speed', 'Mass', 'EnergyEfficiency']
+        trait_cols = ['Endurance', 'Adaptation', 'Mobility', 'Efficiency']
         heatmap_data = biome_stats.set_index('BiomeType')[trait_cols]
         
         # Normalize for heatmap
@@ -228,12 +225,10 @@ class EvolutionAnalyzer:
         
         # Calculate average traits per step
         time_stats = self.entity_data.groupby('Step').agg({
-            'Speed': 'mean',
-            'Mass': 'mean',
-            'EnergyEfficiency': 'mean',
-            'SightRange': 'mean',
-            'MetabolismRate': 'mean',
-            'ReproductionThreshold': 'mean',
+            'Endurance': 'mean',
+            'Adaptation': 'mean',
+            'Mobility': 'mean',
+            'Efficiency': 'mean',
             'Energy': 'mean',
             'EntityID': 'count'  # Population size
         }).reset_index()
@@ -268,8 +263,8 @@ class EvolutionAnalyzer:
         
         # 2. Movement Traits Evolution
         ax = axes[0, 1]
-        ax.plot(time_stats['Step'], time_stats['Speed'], label='Speed', linewidth=2)
-        ax.plot(time_stats['Step'], time_stats['Mass'], label='Mass', linewidth=2)
+        ax.plot(time_stats['Step'], time_stats['Endurance'], label='Endurance', linewidth=2)
+        ax.plot(time_stats['Step'], time_stats['Mobility'], label='Mobility', linewidth=2)
         ax.set_xlabel('Simulation Step', fontsize=11)
         ax.set_ylabel('Trait Value', fontsize=11)
         ax.set_title('Movement Traits Evolution', fontweight='bold')
@@ -278,10 +273,10 @@ class EvolutionAnalyzer:
         
         # 3. Efficiency Traits Evolution
         ax = axes[1, 0]
-        ax.plot(time_stats['Step'], time_stats['EnergyEfficiency'], 
-               label='Energy Efficiency', linewidth=2)
-        ax.plot(time_stats['Step'], time_stats['MetabolismRate'] * 100, 
-               label='Metabolism Rate (×100)', linewidth=2)
+        ax.plot(time_stats['Step'], time_stats['Adaptation'], 
+               label='Adaptation', linewidth=2)
+        ax.plot(time_stats['Step'], time_stats['Efficiency'], 
+               label='Efficiency', linewidth=2)
         ax.set_xlabel('Simulation Step', fontsize=11)
         ax.set_ylabel('Trait Value', fontsize=11)
         ax.set_title('Efficiency Traits Evolution', fontweight='bold')
@@ -290,10 +285,10 @@ class EvolutionAnalyzer:
         
         # 4. Survival Traits Evolution
         ax = axes[1, 1]
-        ax.plot(time_stats['Step'], time_stats['SightRange'], 
-               label='Sight Range', linewidth=2)
-        ax.plot(time_stats['Step'], time_stats['ReproductionThreshold'], 
-               label='Reproduction Threshold', linewidth=2)
+        ax.plot(time_stats['Step'], time_stats['Endurance'], 
+               label='Endurance', linewidth=2, linestyle='--')
+        ax.plot(time_stats['Step'], time_stats['Efficiency'], 
+               label='Efficiency (repeated)', linewidth=2, linestyle='--')
         ax.set_xlabel('Simulation Step', fontsize=11)
         ax.set_ylabel('Trait Value', fontsize=11)
         ax.set_title('Survival Strategy Traits Evolution', fontweight='bold')
@@ -314,8 +309,7 @@ class EvolutionAnalyzer:
         print("\n🔗 Analyzing trait correlations...")
         
         # Select numeric trait columns
-        trait_cols = ['Speed', 'Mass', 'EnergyEfficiency', 'SightRange', 
-                     'MetabolismRate', 'ReproductionThreshold', 'Energy', 'Age']
+        trait_cols = ['Endurance', 'Adaptation', 'Mobility', 'Efficiency', 'Energy', 'Age']
         
         # Calculate correlation matrix
         corr_matrix = self.entity_data[trait_cols].corr()
@@ -399,16 +393,16 @@ class EvolutionAnalyzer:
         ax.legend(handles=handles, loc='center left', bbox_to_anchor=(1, 0.5))
         ax.grid(True, alpha=0.2)
         
-        # 4. Speed Distribution
+        # 4. Mobility Distribution
         ax = axes[1, 1]
         scatter = ax.scatter(snapshot['X'], snapshot['Y'], 
-                           c=snapshot['Speed'], cmap='coolwarm', 
+                           c=snapshot['Mobility'], cmap='coolwarm', 
                            s=100, alpha=0.6, edgecolors='black', linewidth=0.5)
         ax.set_xlabel('X Position', fontsize=11)
         ax.set_ylabel('Y Position', fontsize=11)
-        ax.set_title('Speed Trait Distribution Across Grid', fontweight='bold')
+        ax.set_title('Mobility Trait Distribution Across Grid', fontweight='bold')
         ax.set_aspect('equal')
-        plt.colorbar(scatter, ax=ax, label='Speed')
+        plt.colorbar(scatter, ax=ax, label='Mobility')
         ax.grid(True, alpha=0.2)
         
         plt.tight_layout()
@@ -436,8 +430,7 @@ class EvolutionAnalyzer:
                 
                 f.write("TRAIT STATISTICS\n")
                 f.write("-" * 40 + "\n")
-                traits = ['Speed', 'Mass', 'EnergyEfficiency', 'SightRange', 
-                         'MetabolismRate', 'ReproductionThreshold', 'Energy', 'Age']
+                traits = ['Endurance', 'Adaptation', 'Mobility', 'Efficiency', 'Energy', 'Age']
                 for trait in traits:
                     f.write(f"\n{trait}:\n")
                     f.write(f"  Mean: {self.entity_data[trait].mean():.3f}\n")
