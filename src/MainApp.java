@@ -1,16 +1,19 @@
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import entities.Entity;
+import export.CSVExporter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import ui.AppStyles;
 import ui.ConfigDisplay;
@@ -20,7 +23,7 @@ import ui.WorldDisplay;
 import world.Type;
 import world.World;
 
-public class MainAppNew extends Application {
+public class MainApp extends Application {
     private World world;
     private int tickspeed = 200;
     private Stage primaryStage;
@@ -28,6 +31,12 @@ public class MainAppNew extends Application {
     private Thread simulationThread;
     private volatile boolean running = false;
     private int stepCounter = 0;
+
+    // Export tracking
+    private boolean exportEntityDetails = false;
+    private boolean exportBiomeDetails = false;
+    private String entityDetailsFileName;
+    private String biomeDetailsFileName;
 
     // UI Components
     private WorldDisplay worldDisplay;
@@ -70,12 +79,13 @@ public class MainAppNew extends Application {
         // Create main content area with responsive sizing
         HBox mainContent = new HBox(AppStyles.SPACING_MEDIUM);
 
-        // Left panel with world display and chart
+        // Left panel with world display only
         VBox leftPanel = new VBox(AppStyles.SPACING_MEDIUM);
-        leftPanel.getChildren().addAll(worldDisplay.getContainer(), graphDisplay.getContainer());
+        leftPanel.getChildren().add(worldDisplay.getContainer());
 
-        // Right panel with controls
-        VBox rightPanel = configDisplay.getContainer();
+        // Right panel with controls and chart
+        VBox rightPanel = new VBox(AppStyles.SPACING_MEDIUM);
+        rightPanel.getChildren().addAll(configDisplay.getContainer(), graphDisplay.getContainer());
 
         // Set responsive sizes
         updateComponentSizes();
@@ -104,10 +114,11 @@ public class MainAppNew extends Application {
 
         configDisplay.setPreferredWidth(controlPanelWidth);
 
-        // Update world display size
-        worldDisplay.setPreferredSize(worldDisplayWidth, worldDisplayHeight);
+        // Update world display size - now takes full height
+        worldDisplay.setPreferredSize(worldDisplayWidth, worldDisplayHeight + chartHeight);
 
-        graphDisplay.setPreferredSize(worldDisplayWidth, chartHeight);
+        // Graph now uses control panel width for better fit
+        graphDisplay.setPreferredSize(controlPanelWidth, chartHeight);
     }
 
     private void setupEventHandlers() {
@@ -195,6 +206,36 @@ public class MainAppNew extends Application {
             int steps = parseIntOr(configDisplay.batchStepsField.getText(), 1000);
             runBatchSimulation(runs, steps);
         });
+
+        // Export controls
+        configDisplay.exportEntityDetailsBtn.setOnAction(e -> toggleEntityDetailsExport());
+        configDisplay.exportBiomeDetailsBtn.setOnAction(e -> toggleBiomeDetailsExport());
+    }
+
+    private void toggleEntityDetailsExport() {
+        exportEntityDetails = !exportEntityDetails;
+
+        if (exportEntityDetails) {
+            entityDetailsFileName = "entity_details_gui_" + System.currentTimeMillis() + ".csv";
+            statusLabel.setText("Entity details export ENABLED: " + entityDetailsFileName);
+            configDisplay.exportEntityDetailsBtn.setText("Stop Entity Export");
+        } else {
+            statusLabel.setText("Entity details export DISABLED. Saved to: " + entityDetailsFileName);
+            configDisplay.exportEntityDetailsBtn.setText("Export Entity Details");
+        }
+    }
+
+    private void toggleBiomeDetailsExport() {
+        exportBiomeDetails = !exportBiomeDetails;
+
+        if (exportBiomeDetails) {
+            biomeDetailsFileName = "biome_details_gui_" + System.currentTimeMillis() + ".csv";
+            statusLabel.setText("Biome details export ENABLED: " + biomeDetailsFileName);
+            configDisplay.exportBiomeDetailsBtn.setText("Stop Biome Export");
+        } else {
+            statusLabel.setText("Biome details export DISABLED. Saved to: " + biomeDetailsFileName);
+            configDisplay.exportBiomeDetailsBtn.setText("Export Biome Details");
+        }
     }
 
     private HBox createStatusSection() {
@@ -227,14 +268,28 @@ public class MainAppNew extends Application {
 
                 stepCounter++;
 
-                // Update chart every 10 steps
-                if (stepCounter % 10 == 0) {
-                    Platform.runLater(() -> {
-                        Map<Type, Integer> entityCounts = world.countEntitiesInAllBiomes();
-                        graphDisplay.updateChart(stepCounter, entityCounts);
-                        renderWorld();
-                    });
+                // Export data if enabled
+                if (exportEntityDetails) {
+                    try {
+                        CSVExporter.exportEntityDetails(world, stepCounter, entityDetailsFileName);
+                    } catch (IOException ex) {
+                        Platform.runLater(() -> statusLabel.setText("Export error: " + ex.getMessage()));
+                    }
                 }
+                if (exportBiomeDetails) {
+                    try {
+                        CSVExporter.exportBiomeDetails(world, stepCounter, biomeDetailsFileName);
+                    } catch (IOException ex) {
+                        Platform.runLater(() -> statusLabel.setText("Export error: " + ex.getMessage()));
+                    }
+                }
+
+                // Update chart and world display every step
+                Platform.runLater(() -> {
+                    Map<Type, Integer> entityCounts = world.countEntitiesInAllBiomes();
+                    graphDisplay.updateChart(stepCounter, entityCounts);
+                    renderWorld();
+                });
 
                 try {
                     Thread.sleep(tickspeed);
@@ -290,13 +345,14 @@ public class MainAppNew extends Application {
     private void showEntityInspector(int x, int y) {
         Entity entity = world.getEntity(x, y);
         if (entity != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Entity Inspector");
-            alert.setHeaderText("Entity at (" + x + ", " + y + ")");
-            alert.setContentText(String.format(
-                    "Age: %d\\nEnergy: %.2f\\nSpeed: %.2f\\nMass: %.2f\\nAlive: %s",
-                    entity.getAge(), entity.getEnergy(), entity.getSpeed(), entity.getMass(), entity.isAlive()));
-            alert.showAndWait();
+            String content = String.format(
+                    "Age: %d\nEnergy: %.2f\nSpeed: %.2f\nMass: %.2f\nAlive: %s",
+                    entity.getAge(), entity.getEnergy(), entity.getSpeed(), entity.getMass(), entity.isAlive());
+
+            ui.DialogUtils.showInfo(
+                    "Entity Inspector",
+                    "Entity at (" + x + ", " + y + ")",
+                    content);
         } else {
             statusLabel.setText("No entity found at (" + x + ", " + y + ")");
         }
@@ -306,25 +362,24 @@ public class MainAppNew extends Application {
         Map<Type, Integer> entityCounts = world.countEntitiesInAllBiomes();
         int totalEntities = entityCounts.values().stream().mapToInt(Integer::intValue).sum();
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("World Statistics");
-        alert.setHeaderText("Current World State");
-        alert.setContentText(String.format(
-                "Total Entities: %d\\nGrass Biome: %d\\nForest Biome: %d\\nMountain Biome: %d\\nDesert Biome: %d\\nSteps Completed: %d",
+        String content = String.format(
+                "Total Entities: %d\nGrass Biome: %d\nForest Biome: %d\nMountain Biome: %d\nDesert Biome: %d\nSteps Completed: %d",
                 totalEntities,
                 entityCounts.getOrDefault(Type.GRASS, 0),
                 entityCounts.getOrDefault(Type.FOREST, 0),
                 entityCounts.getOrDefault(Type.MOUNTAIN, 0),
                 entityCounts.getOrDefault(Type.DESERT, 0),
-                stepCounter));
-        alert.showAndWait();
+                stepCounter);
+
+        ui.DialogUtils.showInfo("World Statistics", "Current World State", content);
     }
 
     private void runBatchSimulation(int runs, int steps) {
-        Alert progressAlert = new Alert(Alert.AlertType.INFORMATION);
-        progressAlert.setTitle("Batch Simulation");
-        progressAlert.setHeaderText("Running batch simulation...");
-        progressAlert.setContentText("Starting " + runs + " simulations with " + steps + " steps each.");
+        ui.DialogUtils.ProgressDialog progressDialog = ui.DialogUtils.showProgress(
+                "Batch Simulation",
+                "Running batch simulation...");
+        progressDialog.updateProgress(0, "Starting " + runs + " simulations with " + steps + " steps each.");
+        progressDialog.show();
 
         Thread batchThread = new Thread(() -> {
             BatchSimulation batchSim = new BatchSimulation();
@@ -335,64 +390,116 @@ public class MainAppNew extends Application {
                 List<BatchSimulation.SimulationResult> results = batchSim.runBatchSimulation(config, null);
 
                 Platform.runLater(() -> {
-                    progressAlert.close();
-
-                    Alert resultAlert = new Alert(Alert.AlertType.INFORMATION);
-                    resultAlert.setTitle("Batch Results");
-                    resultAlert.setHeaderText("Batch simulation completed");
+                    progressDialog.close();
 
                     if (!results.isEmpty()) {
                         double avgFinalEntities = results.stream()
                                 .mapToInt(BatchSimulation.SimulationResult::getFinalEntityCount).average().orElse(0);
                         double avgSteps = results.stream().mapToInt(BatchSimulation.SimulationResult::getStepsRun)
                                 .average().orElse(0);
-                        resultAlert.setContentText(String.format(
-                                "Completed %d simulations\\nAverage final entities: %.1f\\nAverage steps completed: %.1f\\nResults exported to CSV",
-                                results.size(), avgFinalEntities, avgSteps));
+                        String content = String.format(
+                                "Completed %d simulations\nAverage final entities: %.1f\nAverage steps completed: %.1f\nResults exported to CSV",
+                                results.size(), avgFinalEntities, avgSteps);
+                        ui.DialogUtils.showSuccess("Batch Results", content);
                     } else {
-                        resultAlert.setContentText("No results generated");
+                        ui.DialogUtils.showInfo("Batch Results", "Batch simulation completed", "No results generated");
                     }
-
-                    resultAlert.showAndWait();
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
-                    progressAlert.close();
-                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                    errorAlert.setTitle("Batch Simulation Error");
-                    errorAlert.setContentText("Error running batch simulation: " + e.getMessage());
-                    errorAlert.showAndWait();
+                    progressDialog.close();
+                    ui.DialogUtils.showError("Batch Simulation Error",
+                            "Error running batch simulation: " + e.getMessage());
                 });
             }
         });
 
         batchThread.setDaemon(true);
         batchThread.start();
-        progressAlert.showAndWait();
     }
 
     private void initializeWorld() {
-        TextInputDialog seedDialog = new TextInputDialog();
-        seedDialog.setTitle("World Seed");
-        seedDialog.setHeaderText("Enter World Seed");
-        seedDialog.setContentText("Seed (compact format, or leave empty for random):");
+        // Create custom dialog with text field and browse button
+        javafx.scene.control.Dialog<javafx.scene.control.ButtonType> dialog = ui.DialogUtils
+                .createCustomDialog("Initialize World", "Enter world seed or browse for file");
 
-        java.util.Optional<String> seedResult = seedDialog.showAndWait();
-        if (seedResult.isPresent()) {
-            String seedInput = seedResult.get().trim();
-            if (seedInput.isEmpty()) {
-                world = new World();
-                System.out.println("Generated random world: " + world.getWorldSeed().getDescription());
-            } else {
+        // Content area
+        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(AppStyles.SPACING_MEDIUM);
+        content.setPadding(new javafx.geometry.Insets(AppStyles.PADDING_MEDIUM));
+
+        // Label
+        javafx.scene.control.Label label = new javafx.scene.control.Label(
+                "Seed (leave empty for random world):");
+        label.setStyle(AppStyles.getLabelStyle());
+
+        // Text field and browse button in horizontal layout
+        javafx.scene.layout.HBox inputBox = new javafx.scene.layout.HBox(AppStyles.SPACING_SMALL);
+        javafx.scene.control.TextField seedField = new javafx.scene.control.TextField();
+        seedField.setPromptText("Enter seed or browse file...");
+        seedField.setPrefWidth(300);
+        seedField.setStyle(AppStyles.getTextFieldStyle());
+
+        javafx.scene.control.Button browseBtn = new javafx.scene.control.Button("Browse...");
+        browseBtn.setStyle(AppStyles.getSecondaryButtonStyle());
+        browseBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Import World Seed");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("World Seed Files", "*.seed"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*"));
+
+            File file = fileChooser.showOpenDialog(primaryStage);
+            if (file != null) {
+                try (Scanner scanner = new Scanner(file)) {
+                    String seedString = scanner.nextLine().trim();
+                    seedField.setText(seedString);
+                } catch (IOException ex) {
+                    ui.DialogUtils.showError("Import Failed", "Could not read file: " + ex.getMessage());
+                }
+            }
+        });
+
+        inputBox.getChildren().addAll(seedField, browseBtn);
+        content.getChildren().addAll(label, inputBox);
+
+        dialog.getDialogPane().setContent(content);
+
+        // Add OK and Cancel buttons
+        dialog.getDialogPane().getButtonTypes().addAll(
+                javafx.scene.control.ButtonType.OK,
+                javafx.scene.control.ButtonType.CANCEL);
+
+        // Style buttons
+        javafx.scene.control.Button okBtn = (javafx.scene.control.Button) dialog.getDialogPane()
+                .lookupButton(javafx.scene.control.ButtonType.OK);
+        javafx.scene.control.Button cancelBtn = (javafx.scene.control.Button) dialog.getDialogPane()
+                .lookupButton(javafx.scene.control.ButtonType.CANCEL);
+
+        if (okBtn != null)
+            okBtn.setStyle(AppStyles.getPrimaryButtonStyle());
+        if (cancelBtn != null)
+            cancelBtn.setStyle(AppStyles.getSecondaryButtonStyle());
+
+        // Show dialog and process result
+        java.util.Optional<javafx.scene.control.ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
+            String seedInput = seedField.getText().trim();
+            if (!seedInput.isEmpty()) {
                 try {
                     world = new World(seedInput);
                     System.out.println("Generated world with seed: " + world.getWorldSeed().getDescription());
                 } catch (Exception e) {
                     System.out.println("Invalid seed format, generating random world: " + e.getMessage());
+                    ui.DialogUtils.showError("Invalid Seed", "Could not parse seed, using random world");
                     world = new World();
                 }
+            } else {
+                world = new World();
+                System.out.println("Generated random world: " + world.getWorldSeed().getDescription());
             }
         } else {
+            // Cancelled - generate random world as default
             world = new World();
             System.out.println("Generated random world: " + world.getWorldSeed().getDescription());
         }

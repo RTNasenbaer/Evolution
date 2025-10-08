@@ -33,6 +33,8 @@ public class WorldBuilderControls {
     private BrushShape brushShape = BrushShape.SQUARE;
     private Spinner<Integer> sizeSpinner;
     private ToggleGroup shapeGroup;
+    private ToggleButton squareShapeBtn;
+    private ToggleButton circleShapeBtn;
 
     // Tool buttons - made public for external access
     public Button clearBtn;
@@ -127,24 +129,51 @@ public class WorldBuilderControls {
         HBox shapeButtons = new HBox(5);
         shapeGroup = new ToggleGroup();
 
-        ToggleButton squareBtn = new ToggleButton("□");
-        squareBtn.setToggleGroup(shapeGroup);
-        squareBtn.setSelected(true);
-        squareBtn.setStyle(AppStyles.getPrimaryButtonStyle());
-        squareBtn.setOnAction(e -> brushShape = BrushShape.SQUARE);
-        squareBtn.setTooltip(new Tooltip("Square brush"));
+        // Square button with filled icon
+        squareShapeBtn = new ToggleButton("■");
+        squareShapeBtn.setToggleGroup(shapeGroup);
+        squareShapeBtn.setSelected(true);
+        squareShapeBtn.setStyle(AppStyles.getButtonStyle(AppStyles.INFO_COLOR) +
+                " -fx-min-width: 40; -fx-font-size: 16px;");
+        squareShapeBtn.setOnAction(e -> {
+            brushShape = BrushShape.SQUARE;
+            updateShapeButtonStyles();
+        });
+        squareShapeBtn.setTooltip(new Tooltip("Square brush"));
 
-        ToggleButton circleBtn = new ToggleButton("○");
-        circleBtn.setToggleGroup(shapeGroup);
-        circleBtn.setStyle(AppStyles.getSecondaryButtonStyle());
-        circleBtn.setOnAction(e -> brushShape = BrushShape.CIRCLE);
-        circleBtn.setTooltip(new Tooltip("Circle brush"));
+        // Circle button with filled icon
+        circleShapeBtn = new ToggleButton("●");
+        circleShapeBtn.setToggleGroup(shapeGroup);
+        circleShapeBtn.setStyle(AppStyles.getButtonStyle(AppStyles.SECONDARY_COLOR) +
+                " -fx-min-width: 40; -fx-font-size: 16px;");
+        circleShapeBtn.setOnAction(e -> {
+            brushShape = BrushShape.CIRCLE;
+            updateShapeButtonStyles();
+        });
+        circleShapeBtn.setTooltip(new Tooltip("Circle brush"));
 
-        shapeButtons.getChildren().addAll(squareBtn, circleBtn);
+        // Update initial style for selected button
+        updateShapeButtonStyles();
+
+        shapeButtons.getChildren().addAll(squareShapeBtn, circleShapeBtn);
         shapeControl.getChildren().addAll(shapeLabel, shapeButtons);
 
         brushControls.getChildren().addAll(sizeControl, shapeControl);
         brushSection.getChildren().addAll(brushLabel, brushControls);
+    }
+
+    private void updateShapeButtonStyles() {
+        if (brushShape == BrushShape.SQUARE) {
+            squareShapeBtn.setStyle(AppStyles.getButtonStyle(AppStyles.INFO_COLOR) +
+                    " -fx-min-width: 40; -fx-font-size: 16px;");
+            circleShapeBtn.setStyle(AppStyles.getButtonStyle(AppStyles.SECONDARY_COLOR) +
+                    " -fx-min-width: 40; -fx-font-size: 16px; -fx-opacity: 0.7;");
+        } else {
+            squareShapeBtn.setStyle(AppStyles.getButtonStyle(AppStyles.SECONDARY_COLOR) +
+                    " -fx-min-width: 40; -fx-font-size: 16px; -fx-opacity: 0.7;");
+            circleShapeBtn.setStyle(AppStyles.getButtonStyle(AppStyles.INFO_COLOR) +
+                    " -fx-min-width: 40; -fx-font-size: 16px;");
+        }
     }
 
     private void createToolsSection() {

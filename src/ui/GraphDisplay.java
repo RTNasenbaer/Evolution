@@ -1,5 +1,8 @@
 package ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -8,18 +11,17 @@ import world.Type;
 
 /**
  * Component responsible for displaying population charts and graphs.
- * Handles the visualization of entity counts and population trends over time.
+ * Dynamically creates series only for biomes that exist in the world.
  */
 public class GraphDisplay {
     private VBox container;
-
     private LineChart<Number, Number> lineChart;
-    private XYChart.Series<Number, Number> series1;
-    private XYChart.Series<Number, Number> series2;
-    private XYChart.Series<Number, Number> series3;
-    private XYChart.Series<Number, Number> series4;
+    private Map<Type, XYChart.Series<Number, Number>> seriesMap;
+    private Map<Type, Boolean> biomeDetected;
 
     public GraphDisplay() {
+        seriesMap = new HashMap<>();
+        biomeDetected = new HashMap<>();
         initializeComponents();
     }
 
@@ -31,11 +33,6 @@ public class GraphDisplay {
     }
 
     private void createChart() {
-        series1 = createSeries("Grass Biome");
-        series2 = createSeries("Forest Biome");
-        series3 = createSeries("Mountain Biome");
-        series4 = createSeries("Desert Biome");
-
         NumberAxis xAxis = new NumberAxis("Steps", 0, 100, 10);
         NumberAxis yAxis = new NumberAxis("Entity Count", 0, 100, 10);
         xAxis.setAutoRanging(true);
@@ -44,11 +41,9 @@ public class GraphDisplay {
         lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Entity Population by Biome");
         lineChart.setStyle(AppStyles.getCardStyle());
-        lineChart.getData().add(series1);
-        lineChart.getData().add(series2);
-        lineChart.getData().add(series3);
-        lineChart.getData().add(series4);
         lineChart.setLegendVisible(true);
+        lineChart.setCreateSymbols(false); // Performance optimization
+        lineChart.setAnimated(false); // Disable animation for faster updates
 
         container.getChildren().add(lineChart);
     }
@@ -68,29 +63,31 @@ public class GraphDisplay {
     }
 
     public void updateChart(int step, java.util.Map<Type, Integer> entityCounts) {
-        // Update each series with new data points
-        if (entityCounts.containsKey(Type.GRASS)) {
-            series1.getData().add(new XYChart.Data<>(step, entityCounts.get(Type.GRASS)));
-        }
-        if (entityCounts.containsKey(Type.FOREST)) {
-            series2.getData().add(new XYChart.Data<>(step, entityCounts.get(Type.FOREST)));
-        }
-        if (entityCounts.containsKey(Type.MOUNTAIN)) {
-            series3.getData().add(new XYChart.Data<>(step, entityCounts.get(Type.MOUNTAIN)));
-        }
-        if (entityCounts.containsKey(Type.DESERT)) {
-            series4.getData().add(new XYChart.Data<>(step, entityCounts.get(Type.DESERT)));
+        // Dynamically add series for newly detected biomes
+        for (Type type : entityCounts.keySet()) {
+            if (!biomeDetected.getOrDefault(type, false)) {
+                // First time seeing entities in this biome
+                XYChart.Series<Number, Number> newSeries = createSeries(type.name());
+                seriesMap.put(type, newSeries);
+                lineChart.getData().add(newSeries);
+                biomeDetected.put(type, true);
+            }
         }
 
-        // Keep only last 100 data points for performance
-        trimSeriesData(series1);
-        trimSeriesData(series2);
-        trimSeriesData(series3);
-        trimSeriesData(series4);
+        // Update all detected series with new data points
+        for (Map.Entry<Type, XYChart.Series<Number, Number>> entry : seriesMap.entrySet()) {
+            Type type = entry.getKey();
+            XYChart.Series<Number, Number> series = entry.getValue();
+            int count = entityCounts.getOrDefault(type, 0);
+            series.getData().add(new XYChart.Data<>(step, count));
+
+            // Keep only last 100 data points for performance
+            trimSeriesData(series);
+        }
     }
 
     private void trimSeriesData(XYChart.Series<Number, Number> series) {
-        if (series.getData().size() > 100) {
+        if (series.getData().size() > 20) {
             series.getData().remove(0);
         }
     }
@@ -100,9 +97,13 @@ public class GraphDisplay {
     }
 
     public void clearData() {
-        series1.getData().clear();
-        series2.getData().clear();
-        series3.getData().clear();
-        series4.getData().clear();
+        // Clear all dynamic series
+        for (XYChart.Series<Number, Number> series : seriesMap.values()) {
+            series.getData().clear();
+        }
+        // Remove all series from chart
+        lineChart.getData().clear();
+        seriesMap.clear();
+        biomeDetected.clear();
     }
 }

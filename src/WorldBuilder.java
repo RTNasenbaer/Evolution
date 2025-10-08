@@ -8,10 +8,7 @@ import java.util.Scanner;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -24,7 +21,7 @@ import world.Type;
 import world.World;
 import world.WorldSeed;
 
-public class WorldBuilderNew extends Application {
+public class WorldBuilder extends Application {
     private static final int GRID_SIZE = World.SIZE;
     private static final int TILE_SIZE = 12;
 
@@ -118,11 +115,6 @@ public class WorldBuilderNew extends Application {
 
         Label title = new Label("World Editor");
         title.setStyle(AppStyles.getTitleStyle());
-
-        worldGrid = createWorldGrid();
-        ScrollPane scrollPane = new ScrollPane(worldGrid);
-        scrollPane.setStyle("-fx-background: " + AppStyles.BACKGROUND_COLOR + "; -fx-border-color: " +
-                AppStyles.BORDER_COLOR + "; -fx-border-width: 1; -fx-border-radius: 5;");
 
         worldGrid = createWorldGrid();
 
@@ -401,32 +393,31 @@ public class WorldBuilderNew extends Application {
 
     private void exportAsSeed() {
         String seedString = worldSeed.toSeedString();
+        String description = worldSeed.getDescription();
 
-        TextInputDialog dialog = new TextInputDialog(seedString);
-        dialog.setTitle("Export Seed");
-        dialog.setHeaderText("World Seed Generated");
-        dialog.setContentText("Copy this seed to use in the main application:\\n\\n" +
-                worldSeed.getDescription() + "\\n\\n" +
-                "Seed String: " + seedString);
+        String labelText = "Copy this seed to use in the main application:\n\n" + description;
 
-        dialog.showAndWait();
+        ui.DialogUtils.showCopyableText(
+                "Export Seed",
+                "World Seed Generated",
+                labelText,
+                seedString);
     }
 
     private void importFromSeed() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Import Seed");
-        dialog.setHeaderText("Import World from Seed");
-        dialog.setContentText("Enter seed string:");
+        String result = ui.DialogUtils.showTextInput(
+                "Import Seed",
+                "Import World from Seed",
+                "Enter seed string:");
 
-        java.util.Optional<String> result = dialog.showAndWait();
-        if (result.isPresent() && !result.get().trim().isEmpty()) {
+        if (result != null && !result.trim().isEmpty()) {
             try {
-                worldSeed = WorldSeed.fromSeedString(result.get().trim());
+                worldSeed = WorldSeed.fromSeedString(result.trim());
                 updateWorldGrid();
                 updateSeedDisplay();
-                showAlert("Success", "World imported successfully!\\n" + worldSeed.getDescription());
+                ui.DialogUtils.showSuccess("Success", "World imported successfully!\n" + worldSeed.getDescription());
             } catch (Exception e) {
-                showAlert("Error", "Failed to import seed: " + e.getMessage());
+                ui.DialogUtils.showError("Error", "Failed to import seed: " + e.getMessage());
             }
         }
     }
@@ -445,8 +436,6 @@ public class WorldBuilderNew extends Application {
         }
         return biomeData;
     }
-
-    private ScrollPane currentScrollPane;
 
     private void setupZoomPanOnContainer(javafx.scene.layout.StackPane container, javafx.scene.Group group,
             javafx.scene.shape.Rectangle clip) {
@@ -558,11 +547,11 @@ public class WorldBuilderNew extends Application {
     }
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        if (title.equalsIgnoreCase("Error")) {
+            ui.DialogUtils.showError(title, message);
+        } else {
+            ui.DialogUtils.showSuccess(title, message);
+        }
     }
 
     public static void main(String[] args) {

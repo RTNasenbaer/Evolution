@@ -32,6 +32,8 @@ public class ConfigDisplay {
     public Button inspectBtn;
     public Button statsBtn;
     public Button batchBtn;
+    public Button exportEntityDetailsBtn;
+    public Button exportBiomeDetailsBtn;
 
     public TextField stepsField;
     public TextField tickspeedField;
@@ -140,10 +142,15 @@ public class ConfigDisplay {
         batchRunsField = createTextField("Runs", 70);
         batchStepsField = createTextField("Steps", 70);
 
+        exportEntityDetailsBtn = createButton("Export Entity Details", AppStyles.WARNING_COLOR);
+        exportBiomeDetailsBtn = createButton("Export Biome Details", AppStyles.WARNING_COLOR);
+
         HBox analysisRow1 = new HBox(8, inspectBtn, statsBtn);
         HBox analysisRow2 = new HBox(8, batchBtn, batchRunsField, batchStepsField);
+        HBox analysisRow3 = new HBox(8, exportEntityDetailsBtn);
+        HBox analysisRow4 = new HBox(8, exportBiomeDetailsBtn);
 
-        analysisControls.getChildren().addAll(analysisRow1, analysisRow2);
+        analysisControls.getChildren().addAll(analysisRow1, analysisRow2, analysisRow3, analysisRow4);
         analysisSection.getChildren().addAll(analysisLabel, analysisControls);
     }
 

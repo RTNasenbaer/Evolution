@@ -27,3 +27,16 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Build artifacts ###
+build/
+*.class
+*.jar
+!lib/*.jar
+
+### Data files ###
+data/*.csv
+data/*.dat
+
+### Logs ###
+*.log

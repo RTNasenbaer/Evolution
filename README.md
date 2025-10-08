@@ -4,168 +4,162 @@ A Java-based evolution and ecosystem simulation that models entities living and 
 
 ## 🌍 Overview
 
-The Evolution simulation creates a 50x50 grid world populated with different biomes (Grass, Forest, Mountain, Desert) where entities can move, eat, reproduce, and die based on their energy levels and environmental conditions. The simulation supports both terminal-based and JavaFX graphical interfaces with real-time data visualization.
+The Evolution simulation creates a 100x100 grid world populated with different biomes (Grassland, Forest, Water, Desert, Mountain, Snow) where entities can move, eat, reproduce, and die based on their energy levels and environmental conditions. The simulation supports both terminal-based and JavaFX graphical interfaces with real-time data visualization.
 
-## 🏗️ Architecture
+## 📚 Documentation
 
-### Core Classes
+This README provides a quick overview. For detailed information, please see:
 
-#### `Main.java`
-- **Purpose**: Command-line interface for the simulation
-- **Features**:
-  - Interactive terminal controls (`/run`, `/move`, `/spawn`, `/tickspeed`, `/exit`)
-  - Step-by-step or continuous simulation execution
-  - Entity management and world visualization
-  - CSV data export for analysis
-  - Configurable tick speed (default: 200ms)
+- **[Cross-Platform Setup Guide](docs/CROSS_PLATFORM.md)** - Windows, macOS, and Linux installation
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Installation, first steps, and quick start
+- **[User Interface Guide](docs/UI_GUIDE.md)** - Complete guide to terminal, GUI, and World Builder interfaces
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - Technical details, class structure, and system design
+- **[Seed System Guide](docs/SEED_SYSTEM.md)** - World generation, seed formats, and import/export
+- **[Data Analysis Guide](docs/DATA_ANALYSIS.md)** - CSV export, batch simulation, and analysis techniques
+- **[Balance Adjustments](docs/BALANCE_ADJUSTMENTS.md)** - Simulation balance tuning for trait analysis
+- **[Balance Testing Guide](docs/BALANCE_TEST.md)** - Step-by-step guide to verify simulation balance
 
-#### `MainApp.java`
-- **Purpose**: JavaFX-based graphical user interface
-- **Features**:
-  - Visual world representation with color-coded biomes
-  - Real-time line charts showing population dynamics by biome
-  - Interactive controls for simulation management
-  - Responsive UI that adapts to screen size
-  - Multi-threaded simulation execution
-  - Automatic data visualization updates
+## ✨ Key Features
 
-#### `Display.java`
-- **Purpose**: Rendering system for both terminal and JavaFX modes
-- **Features**:
-  - **Terminal Mode**: ANSI color-coded grid with symbols (@=entity, •=food, colored backgrounds=biomes)
-  - **JavaFX Mode**: Graphical tiles with visual indicators
-  - Smart block combining for large worlds to maintain performance
-  - Double buffering for smooth terminal rendering
+### Three Interfaces
 
-### Entity System
+- **Terminal Mode** - Interactive command-line interface with ANSI colors and Unicode symbols
+- **JavaFX GUI** - Modern graphical interface with real-time charts and zoom/pan controls
+- **World Builder** - Visual biome editor for creating custom worlds
 
-#### `Entity.java`
-- **Attributes**:
-  - Position (x, y coordinates)
-  - Energy (survival resource, starts at 10)
-  - Speed (movement capability, default: 1)
-  - Mass (affects movement cost, default: 2)
-  
-- **Behaviors**:
-  - **Movement**: Energy-based movement with physics simulation
-  - **Food Seeking**: Intelligent pathfinding to nearby food sources within 10% of world size
-  - **Random Movement**: Fallback behavior when no food is detected
-  - **Eating**: Consumes food from tiles to gain energy
-  - **Reproduction**: Asexual reproduction when energy ≥ 50 (splits energy in half)
-  - **Death**: Occurs when energy drops below 1.0
+### Simulation Features
 
-- **Energy System**:
-  - Movement cost: `0.5 × mass × speed² × distance`
-  - Energy gain varies by biome food type
-  - Survival threshold: 1.0 energy units
+- **Genetic Traits** - Entities have speed, mass, energy efficiency, sight range, and more
+- **Energy System** - Physics-based energy consumption and food-seeking behavior
+- **Reproduction** - Asexual reproduction with trait mutation
+- **Multiple Biomes** - Grassland, Forest, Water, Desert, Mountain, Snow with distinct properties
+- **World Seeds** - Reproducible worlds with import/export capability
 
-### World System
+### Data & Analysis
 
-#### `World.java`
-- **World Generation**:
-  - 50×50 grid (2,500 tiles total)
-  - Procedural biome generation using seed-based expansion
-  - Breadth-first search (BFS) algorithm for natural biome boundaries
-  - 4 different biome types with distinct characteristics
+- **CSV Export** - Population tracking and entity-level data export
+- **Batch Simulation** - Automated multi-run experiments
+- **Real-time Charts** - Population dynamics visualization
+- **Statistics** - Comprehensive entity and biome statistics
 
-- **Data Management**:
-  - Thread-safe collections (`CopyOnWriteArrayList`)
-  - Entity and tile tracking systems
-  - Population statistics by biome
-  - CSV export functionality with step-by-step data logging
-
-#### `Tile.java`
-- **Properties**:
-  - Position coordinates (x, y)
-  - Biome type (affects food availability and energy)
-  - Food presence (boolean state)
-  - Automated food regeneration system
-
-- **Food Regeneration**:
-  - Asynchronous regeneration using `ScheduledExecutorService`
-  - Base delay: 5 seconds, adjusted by tick speed and world size
-  - Prevents immediate re-consumption of food sources
-
-#### `Type.java` (Biome Definitions)
-- **Grass Biome**: 
-  - Color: Bright Green (#00FF00)
-  - Food Chance: 10%
-  - Food Energy: 2 units
-  
-- **Forest Biome**:
-  - Color: Dark Green (#228B22)
-  - Food Chance: 15% (highest food availability)
-  - Food Energy: 5 units (highest energy gain)
-  
-- **Mountain Biome**:
-  - Color: Gray (#808080)
-  - Food Chance: 5%
-  - Food Energy: 1 unit
-  
-- **Desert Biome**:
-  - Color: Gold (#FFD700)
-  - Food Chance: 2% (lowest food availability)
-  - Food Energy: 0.5 units (lowest energy gain)
-
-### Test Framework
-
-#### `Test.java`
-- Simple JavaFX application for testing chart functionality
-- Demonstrates real-time data visualization capabilities
-- Used for UI component development and testing
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Java 11 or higher
-- JavaFX library (included in `lib/javafx/`)
-- Gson library (included in `lib/gson/`)
+- JavaFX library (included in `lib/javafx/` - **platform-specific, see [Cross-Platform Guide](docs/CROSS_PLATFORM.md)**)
+- Gson library (included in `lib/gson-2.10.1.jar`)
+
+### Platform Support
+
+✅ **Windows** | ✅ **macOS** | ✅ **Linux**
+
+This simulation is fully cross-platform compatible. See the [Cross-Platform Setup Guide](docs/CROSS_PLATFORM.md) for platform-specific instructions.
 
 ### Running the Simulation
 
-#### Terminal Mode
+**Using Universal Shell Script** (macOS/Linux):
+
 ```bash
-java -cp "src:lib/gson/lib/*" Main
+chmod +x run.sh  # First time only
+./run.sh         # Interactive menu
+# Or direct: ./run.sh gui
 ```
 
-**Available Commands:**
-- `/run` - Execute one simulation step
-- `/run <n>` - Execute n simulation steps
-- `/move <x> <y>` - Move first entity to coordinates
-- `/move <ex> <ey> <x> <y>` - Move entity from (ex,ey) to (x,y)
-- `/spawn <x> <y>` - Create new entity at coordinates
-- `/tickspeed <ms>` - Set simulation speed in milliseconds
-- `/exit` - Quit simulation
+**Using Batch Files** (Windows):
 
-#### JavaFX GUI Mode
-```bash
-java --module-path lib/javafx/lib --add-modules javafx.controls,javafx.fxml -cp "src:lib/gson/lib/*" MainApp
+```cmd
+compile.bat      # Compile first
+# Then run with VS Code tasks or java commands
 ```
 
-**GUI Features:**
-- **Run Step**: Execute single simulation step
-- **Run N Steps**: Execute multiple steps continuously
-- **Spawn Entity**: Add new entity at specified coordinates
-- **Move Entity**: Relocate existing entity
-- **Set Tickspeed**: Adjust simulation speed
-- **Stop**: Halt continuous simulation
-- **Real-time Charts**: Population tracking by biome
+**Using VS Code Tasks** (All Platforms):
 
-## 📊 Data Output
+- Press `Ctrl+Shift+B` and select:
+  - **🚀 Run Evolution Simulation** - JavaFX GUI mode
+  - **⚡ Run Terminal Simulation** - Terminal mode
+  - **🌍 Run World Builder** - World design tool
 
-The simulation automatically generates `biome_counts.csv` with population data:
+**Command Line (Windows)**:
+
+```cmd
+# Terminal mode
+java -cp ".;lib/gson-2.10.1.jar" Main
+
+# GUI mode
+java -cp ".;lib/javafx/lib/*;lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media MainApp
+
+# World Builder
+java -cp ".;lib/javafx/lib/*;lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media WorldBuilder
+```
+
+**Command Line (macOS/Linux)**:
+
+```bash
+# Terminal mode
+java -cp ".:lib/gson-2.10.1.jar" Main
+
+# GUI mode
+java -cp ".:lib/javafx/lib/*:lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media MainApp
+
+# World Builder
+java -cp ".:lib/javafx/lib/*:lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media WorldBuilder
+```
+
+For detailed installation steps, platform-specific setup, and troubleshooting, see:
+
+- **[Cross-Platform Setup Guide](docs/CROSS_PLATFORM.md)** - Windows, macOS, Linux instructions
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Basic usage and first steps
+
+## 📖 Usage Examples
+
+### Terminal Mode
+
+```
+> /run 100        # Run 100 simulation steps
+> /auto 1000      # Auto mode with continuous display
+> /spawn 50 50    # Spawn entity at (50, 50)
+> /export         # Toggle CSV data export
+> /stats          # Show detailed statistics
+```
+
+### GUI Mode
+
+- Click "Run Step" for single-step execution
+- Enter number and click "Run N Steps" for multiple steps
+- Click entities in world view for inspection
+- Use batch simulation for automated experiments
+
+### World Builder
+
+- Select biome brush from palette
+- Click and drag to paint biomes
+- Click "Export Seed" to save world
+- Click "Import Seed" to load saved world
+
+For complete command reference and interface guides, see **[UI Guide](docs/UI_GUIDE.md)**.
+
+## � Data Analysis
+
+The simulation provides comprehensive CSV export capabilities through the centralized `CSVExporter` utility:
+
+**Export Types:**
+
+- **Biome Counts**: Population per biome at each step
+- **Entity Details**: Per-entity traits, position, energy, and environment data
+- **Biome Details**: Ecosystem-level statistics with food availability and entity distribution
+
 ```csv
-Step,GRASS,MOUNTAIN,FOREST,DESERT
-10,1,0,1,0
-20,0,0,2,0
+Step,EntityID,X,Y,Energy,Age,Speed,Mass,BiomeType,HasFood
+0,E001,45,67,100.0,0,1.2,80.5,GRASS,true
+1,E001,46,67,95.3,1,1.2,80.5,GRASS,false
 ...
 ```
 
-This data can be imported into spreadsheet applications or data analysis tools for further study.
+**Available in all modes**: Terminal (`/export details`), GUI (Export buttons), and Batch simulation.
 
-## 🎯 Simulation Mechanics
+For analysis techniques and experiment designs, see **[Data Analysis Guide](docs/DATA_ANALYSIS.md)**.
 
-### Entity Lifecycle
 1. **Birth**: Entities spawn with 10 energy units
 2. **Movement**: Intelligent food-seeking behavior within detection range
 3. **Feeding**: Consume biome-specific food for energy gain
@@ -173,12 +167,14 @@ This data can be imported into spreadsheet applications or data analysis tools f
 5. **Death**: Occurs when energy drops below 1.0
 
 ### Environmental Factors
+
 - **Biome Diversity**: Different food availability and energy yields
 - **Food Regeneration**: Prevents resource depletion
 - **Movement Costs**: Physics-based energy consumption
 - **Population Dynamics**: Natural selection based on biome adaptation
 
 ### Evolutionary Pressures
+
 - **Resource Competition**: Limited food sources create selection pressure
 - **Biome Adaptation**: Different biomes favor different survival strategies
 - **Energy Management**: Balancing movement, feeding, and reproduction
@@ -187,12 +183,14 @@ This data can be imported into spreadsheet applications or data analysis tools f
 ## 🔧 Technical Details
 
 ### Performance Optimizations
+
 - **Thread Safety**: `CopyOnWriteArrayList` for concurrent access
 - **Efficient Rendering**: Block combining for large world visualization
 - **Asynchronous Processing**: Separate threads for UI and simulation
 - **Memory Management**: Automatic entity cleanup and garbage collection
 
 ### Extensibility
+
 - **Modular Design**: Easy to add new biomes, entity types, or behaviors
 - **Configurable Parameters**: Adjustable world size, energy systems, and reproduction thresholds
 - **Multiple Interfaces**: Both terminal and GUI support for different use cases
@@ -200,76 +198,121 @@ This data can be imported into spreadsheet applications or data analysis tools f
 ## 📈 Analysis Possibilities
 
 The simulation enables research into:
+
 - Population dynamics and carrying capacity
 - Evolutionary adaptation to environmental pressures
 - Resource distribution effects on survival
 - Spatial ecology and habitat preferences
 - Energy-based ecosystem modeling
 
+The simulation has been carefully balanced to support trait-based analysis. See **[Balance Adjustments](docs/BALANCE_ADJUSTMENTS.md)** for technical details on energy systems, trait ranges, and biome characteristics. For verification testing, see **[Balance Testing Guide](docs/BALANCE_TEST.md)**.
+
+## 🎨 UI/UX Improvements
+
+### Modernized Interface
+
+The application features a completely redesigned user interface with:
+
+- **Consistent Dialog System**: All pop-ups use the standardized `DialogUtils` class for uniform styling and behavior
+- **Copyable Seed Export**: Long seed strings can be easily copied with a single click
+- **Real-time Updates**: World display now updates every simulation step (previously every 10 steps)
+- **Optimized Layout**: Graph relocated to side panel for better space utilization
+- **Enhanced Terminal**: Improved terminal mode with Unicode symbols, borders, and colored output
+- **Zoom & Pan**: Navigate large worlds with intuitive controls (Ctrl+Scroll to zoom, Space+Drag to pan)
+
+### Terminal Display Enhancements
+
+The terminal mode has been significantly improved:
+
+- **Visual Clarity**: Unicode symbols (● for entities, ◆ for food) instead of ASCII characters
+- **Bordered Display**: Clean box-drawing characters frame the world
+- **Performance**: Up to 40x40 grid rendering with color caching
+- **Legend Display**: Dynamic biome color reference
+- **Rich Statistics**: Formatted tables with entity counts and percentages
+- **Auto Mode**: Continuous simulation with real-time display updates
+
+### JavaFX GUI Enhancements
+
+The graphical interface now includes:
+
+- **Modular Design**: Separated UI components for better maintainability
+- **Responsive Layout**: Automatically adapts to window size changes
+- **Side Panel Graph**: Population chart positioned for optimal visibility
+- **Entity Selection**: Click on world tiles to select and inspect entities
+- **Progress Indicators**: Visual feedback for long-running operations
+- **Styled Dialogs**: Professional-looking alerts and input dialogs
+
 ## 🛠️ Development
 
 ### Project Structure
+
 ```
 Evolution/
 ├── src/
-│   ├── Main.java           # Terminal interface
-│   ├── MainApp.java        # JavaFX GUI
-│   ├── Display.java        # Rendering system
-│   ├── Test.java           # Testing utilities
+│   ├── Main.java              # Enhanced terminal interface
+│   ├── Main.java              # Terminal interface
+│   ├── MainAppNew.java        # JavaFX GUI
+│   ├── WorldBuilderNew.java  # World design tool
+│   ├── BatchSimulation.java  # Batch simulation runner
 │   ├── entities/
-│   │   └── Entity.java     # Entity behavior and lifecycle
-│   └── world/
-│       ├── World.java      # World management and generation
-│       ├── Tile.java       # Individual tile properties
-│       └── Type.java       # Biome definitions
-├── lib/                    # External libraries
-├── biome_counts.csv       # Generated data output
-└── README.md              # This file
+│   │   └── Entity.java        # Entity behavior and lifecycle
+│   ├── ui/                    # UI components
+│   │   ├── TerminalDisplay.java
+│   │   ├── DialogUtils.java
+│   │   ├── WorldDisplay.java
+│   │   ├── GraphDisplay.java
+│   │   └── ...
+│   └── world/                 # Simulation engine
+│       ├── World.java
+│       ├── WorldSeed.java
+│       ├── Tile.java
+│       └── Type.java
+├── docs/                      # Documentation
+│   ├── GETTING_STARTED.md
+│   ├── UI_GUIDE.md
+│   ├── ARCHITECTURE.md
+│   ├── SEED_SYSTEM.md
+│   └── DATA_ANALYSIS.md
+├── lib/                       # External libraries
+│   ├── javafx/
+│   └── gson-2.10.1.jar
+└── .vscode/                   # VS Code configuration
+    ├── tasks.json
+    └── launch.json
 ```
 
-## 🌍 **NEW: Advanced Seed System**
+For detailed architecture information, see **[Architecture Documentation](docs/ARCHITECTURE.md)**.
 
-The world generation has been completely overhauled with a new unified seed system:
+## 🌱 World Seeds
 
-### **WorldSeed Features:**
-- **Universal Format**: One seed format works across all applications (Main, MainApp, WorldBuilder)
-- **Complete World Data**: Seeds contain all terrain information, no procedural generation needed
-- **Backward Compatibility**: Legacy numeric seeds still work
-- **Compressed Storage**: Efficient string representation for easy sharing
-- **Rich Metadata**: Seeds include creation info, biome statistics, and generation details
+The simulation uses a seed-based world generation system:
 
-### **Seed Types:**
-- **Procedural Seeds**: Generated from numeric values using original BFS algorithm
-- **Designed Seeds**: Hand-crafted in WorldBuilder with exact terrain control
-- **Legacy Seeds**: Old numeric seeds automatically converted
+**Seed Types:**
 
-### **Usage:**
-```bash
-# Terminal mode - supports all seed formats
-Enter world seed: EVO1F8B2A...  # New seed string format
-Enter world seed: 12345         # Legacy numeric seed
-Enter world seed: MyWorld       # String hash seed
+- **Procedural** - Numeric seeds generate worlds using BFS algorithm (e.g., `12345`)
+- **String Hash** - Text seeds converted to numeric hash (e.g., `MyWorld`)
+- **Designed** - Custom worlds from World Builder (e.g., `EVO_<compressed_data>`)
 
-# WorldBuilder - create and export seeds
-1. Design terrain by painting biomes
-2. Click "Export as Seed" to get shareable seed string
-3. Use "Import Seed" to load existing seeds for editing
+**Usage:**
+
+```
+# At startup, enter seed or leave empty for random
+Enter world seed: 12345
+
+# Export current world in World Builder
+Click "Export Seed" → Copy seed string → Share
 ```
 
-### **Seed String Format:**
-- **Prefix**: `EVO` identifies Evolution seeds
-- **Compression**: GZIP compressed biome data and metadata
-- **Portability**: Works across all Evolution applications seamlessly
+For complete seed system documentation, see **[Seed System Guide](docs/SEED_SYSTEM.md)**.
 
-The new system eliminates the need for separate `.dat` files and ensures perfect world recreation every time! 🎯
+## 🔮 Future Enhancements
 
-### Future Enhancement Ideas
-- Genetic algorithms for entity trait evolution
+- Entity-level CSV export with genetic traits for detailed analysis
+- Dynamic population graphs (auto-detect biomes)
+- Seed import from file
 - Predator-prey relationships
 - Climate changes and seasonal effects
-- Multiple species with different characteristics
-- Advanced AI behaviors and decision making
-- Network-based multi-user simulations
+- Neural network-based entity behavior
 
 ## 📝 License
 
