@@ -731,17 +731,16 @@ data/
 
 The simulation has been carefully tuned to produce meaningful data for trait analysis. Understanding the balance is crucial for interpreting results:
 
-- **Energy Systems**: See [BALANCE_ADJUSTMENTS.md](BALANCE_ADJUSTMENTS.md) for energy costs, food values, and metabolism rates
-- **Trait Ranges**: Understand viable trait values and mutation ranges
-- **Biome Characteristics**: Each biome has distinct food availability and environmental stress
-- **Verification**: Use [BALANCE_TEST.md](BALANCE_TEST.md) to confirm simulation is producing expected results
+- **Energy Systems**: See [BALANCE_ADJUSTMENTS.md](BALANCE_ADJUSTMENTS.md) for detailed energy costs, food values, and metabolism rates
+- **Trait Ranges**: Understand viable trait values and mutation ranges - each trait has natural limits
+- **Biome Characteristics**: Each biome has distinct food availability and environmental stress levels
 
 **Key Balance Points**:
 
 - Entities start with 50 energy (sufficient for exploration and reproduction)
 - Food energy ranges from 1-10 depending on biome quality
 - Movement costs scale with speed, mass, and biome difficulty
-- Reproduction threshold of 40 energy is achievable within lifespan
+- Reproduction threshold of 40 energy is achievable within typical lifespan
 
 ## Related Documentation
 
@@ -749,4 +748,4 @@ The simulation has been carefully tuned to produce meaningful data for trait ana
 - [GETTING_STARTED.md](GETTING_STARTED.md) - Running batch simulations
 - [UI_GUIDE.md](UI_GUIDE.md) - Using batch mode in GUI
 - [BALANCE_ADJUSTMENTS.md](BALANCE_ADJUSTMENTS.md) - Simulation balance configuration
-- [BALANCE_TEST.md](BALANCE_TEST.md) - Balance verification testing
+- [ANALYSIS.md](ANALYSIS.md) - Python analysis scripts and tools

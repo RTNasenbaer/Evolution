@@ -2,9 +2,7 @@ package export;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import entities.Entity;
@@ -18,6 +16,9 @@ import world.World;
  */
 public class CSVExporter {
 
+    /** Directory where all CSV files are saved */
+    private static final String DATA_DIRECTORY = "data";
+
     /**
      * Export simple biome population counts per step.
      * Format: Step,GRASS,MOUNTAIN,FOREST,DESERT,TUNDRA,SWAMP,OCEAN,VOLCANIC
@@ -29,9 +30,10 @@ public class CSVExporter {
      */
     public static void exportBiomeCounts(Map<Type, Integer> counts, int step, String filename, boolean appendMode)
             throws IOException {
-        boolean fileExists = new java.io.File(filename).exists();
+        String fullPath = getDataPath(filename);
+        boolean fileExists = new java.io.File(fullPath).exists();
 
-        try (FileWriter writer = new FileWriter(filename, appendMode)) {
+        try (FileWriter writer = new FileWriter(fullPath, appendMode)) {
             // Write header if new file
             if (!fileExists || !appendMode) {
                 writer.write("Step,GRASS,MOUNTAIN,FOREST,DESERT,TUNDRA,SWAMP,OCEAN,VOLCANIC\n");
@@ -61,9 +63,10 @@ public class CSVExporter {
      * @param filename Output CSV filename
      */
     public static void exportEntityDetails(World world, int step, String filename) throws IOException {
-        boolean fileExists = new java.io.File(filename).exists();
+        String fullPath = getDataPath(filename);
+        boolean fileExists = new java.io.File(fullPath).exists();
 
-        try (FileWriter writer = new FileWriter(filename, true)) {
+        try (FileWriter writer = new FileWriter(fullPath, true)) {
             // Write header if new file
             if (!fileExists) {
                 writer.write("Step,EntityID,X,Y,Energy,Age,Speed,Mass,EnergyEfficiency,ReproductionThreshold,");
@@ -99,33 +102,36 @@ public class CSVExporter {
     }
 
     /**
-     * Export detailed biome-level data including biome properties and entities within each biome.
-     * Format: Step,BiomeType,TotalTiles,TilesWithFood,EntityCount,AvgEntityEnergy,AvgEntityAge,EntityIDs
+     * Export detailed biome-level data including biome properties only (RAW DATA).
+     * Format: Step,BiomeType,TotalTiles,TilesWithFood,EntityCount
+     * 
+     * Note: Individual entity data is in entity_details CSV. All analysis and
+     * aggregation should be done in Python scripts.
      * 
      * @param world    World instance containing biomes and entities
      * @param step     Current simulation step
      * @param filename Output CSV filename
      */
     public static void exportBiomeDetails(World world, int step, String filename) throws IOException {
-        boolean fileExists = new java.io.File(filename).exists();
+        String fullPath = getDataPath(filename);
+        boolean fileExists = new java.io.File(fullPath).exists();
 
-        try (FileWriter writer = new FileWriter(filename, true)) {
+        try (FileWriter writer = new FileWriter(fullPath, true)) {
             // Write header if new file
             if (!fileExists) {
-                writer.write("Step,BiomeType,TotalTiles,TilesWithFood,EntityCount,AvgEntityEnergy,AvgEntityAge,");
-                writer.write("EntityIDs\n");
+                writer.write("Step,BiomeType,TotalTiles,TilesWithFood,EntityCount\n");
             }
 
-            // Group entities by biome
-            Map<Type, List<Entity>> entitiesByBiome = new HashMap<>();
+            // Count entities by biome
+            Map<Type, Integer> entitiesByBiome = new HashMap<>();
             for (Type type : Type.values()) {
-                entitiesByBiome.put(type, new ArrayList<>());
+                entitiesByBiome.put(type, 0);
             }
 
             for (Entity entity : world.getEntities()) {
                 Tile tile = world.getTile(entity.getX(), entity.getY());
                 if (tile != null) {
-                    entitiesByBiome.get(tile.getType()).add(entity);
+                    entitiesByBiome.put(tile.getType(), entitiesByBiome.get(tile.getType()) + 1);
                 }
             }
 
@@ -150,39 +156,34 @@ public class CSVExporter {
                 }
             }
 
-            // Write biome data
+            // Write biome data (raw counts only)
             for (Type type : Type.values()) {
-                List<Entity> biomeEntities = entitiesByBiome.get(type);
-                int entityCount = biomeEntities.size();
-                double avgEnergy = 0;
-                double avgAge = 0;
-                StringBuilder entityIds = new StringBuilder();
-
-                if (entityCount > 0) {
-                    for (int i = 0; i < biomeEntities.size(); i++) {
-                        Entity e = biomeEntities.get(i);
-                        avgEnergy += e.getEnergy();
-                        avgAge += e.getAge();
-                        entityIds.append("E").append(String.format("%03d", i));
-                        if (i < biomeEntities.size() - 1) {
-                            entityIds.append(";");
-                        }
-                    }
-                    avgEnergy /= entityCount;
-                    avgAge /= entityCount;
-                }
-
-                writer.write(String.format("%d,%s,%d,%d,%d,%.2f,%.2f,\"%s\"\n",
+                writer.write(String.format("%d,%s,%d,%d,%d\n",
                         step,
                         type.name(),
                         tileCounts.get(type),
                         foodCounts.get(type),
-                        entityCount,
-                        avgEnergy,
-                        avgAge,
-                        entityIds.toString()));
+                        entitiesByBiome.get(type)));
             }
         }
+    }
+
+    /**
+     * Get the full path for a file in the data directory.
+     * Creates the data directory if it doesn't exist.
+     * 
+     * @param filename Name of the file
+     * @return Full path to the file in the data directory
+     */
+    private static String getDataPath(String filename) {
+        // Ensure data directory exists
+        java.io.File dataDir = new java.io.File(DATA_DIRECTORY);
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
+
+        // Return full path
+        return DATA_DIRECTORY + java.io.File.separator + filename;
     }
 
     /**

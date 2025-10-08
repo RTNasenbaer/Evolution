@@ -1,0 +1,166 @@
+# ==============================================================================
+# Evolution Simulation Project - Git Attributes Configuration
+# ==============================================================================
+# This file helps Git handle different file types correctly across platforms
+# and ensures consistent behavior for line endings, diffs, and merges.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Auto-detect text files and normalize line endings
+# ------------------------------------------------------------------------------
+* text=auto
+
+# ------------------------------------------------------------------------------
+# Source Code Files - Enforce LF line endings
+# ------------------------------------------------------------------------------
+*.java text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.bash text eol=lf
+
+# ------------------------------------------------------------------------------
+# Scripts - Platform-specific line endings
+# ------------------------------------------------------------------------------
+# Windows batch files must use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Unix shell scripts must use LF
+*.sh text eol=lf
+
+# ------------------------------------------------------------------------------
+# Documentation Files
+# ------------------------------------------------------------------------------
+*.md text eol=lf
+*.txt text eol=lf
+*.adoc text eol=lf
+*.textile text eol=lf
+*.mustache text eol=lf
+*.csv text eol=lf
+*.tab text eol=lf
+*.tsv text eol=lf
+*.sql text eol=lf
+
+# ------------------------------------------------------------------------------
+# Configuration Files
+# ------------------------------------------------------------------------------
+*.json text eol=lf
+*.xml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.properties text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.editorconfig text eol=lf
+
+# ------------------------------------------------------------------------------
+# Web Files
+# ------------------------------------------------------------------------------
+*.html text eol=lf
+*.htm text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+
+# ------------------------------------------------------------------------------
+# Binary Files - Never modify
+# ------------------------------------------------------------------------------
+*.jar binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.7z binary
+*.rar binary
+*.bz2 binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.bmp binary
+*.tiff binary
+*.webp binary
+
+# Audio/Video
+*.mp3 binary
+*.mp4 binary
+*.wav binary
+*.avi binary
+*.mov binary
+*.flv binary
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+
+# Documents
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# Compiled files
+*.class binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+
+# ------------------------------------------------------------------------------
+# Custom Application Files
+# ------------------------------------------------------------------------------
+# Evolution seed files
+*.seed text eol=lf
+
+# Data exports (treat as text for better diffs)
+*.csv text eol=lf diff=csv
+*.dat binary
+*.json text eol=lf
+
+# ------------------------------------------------------------------------------
+# Special Git Handling
+# ------------------------------------------------------------------------------
+# Generate better diffs for specific file types
+*.java diff=java
+*.py diff=python
+*.md diff=markdown
+
+# Mark generated files (useful for GitHub linguist)
+build/** linguist-generated=true
+analysis/output/** linguist-generated=true
+
+# Documentation files
+docs/** linguist-documentation
+*.md linguist-documentation
+
+# ------------------------------------------------------------------------------
+# Merge Strategies
+# ------------------------------------------------------------------------------
+# Never merge certain files - always use ours or theirs
+*.jar merge=binary
+*.class merge=binary
+*.png merge=binary
+*.jpg merge=binary
+
+# ==============================================================================
+# End of .gitattributes
+# ==============================================================================

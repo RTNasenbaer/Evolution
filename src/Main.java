@@ -22,17 +22,13 @@ public class Main {
     private Scanner scanner;
 
     // CSV export tracking
-    private boolean exportingData = false;
     private boolean exportEntityDetails = false;
     private boolean exportBiomeDetails = false;
-    private String exportFileName = "biome_counts.csv";
     private String entityDetailsFileName = "entity_details.csv";
     private String biomeDetailsFileName = "biome_details.csv";
-    private StringBuilder csvData;
 
     public Main() {
         scanner = new Scanner(System.in);
-        csvData = new StringBuilder();
     }
 
     public static void main(String[] args) {
@@ -173,7 +169,7 @@ public class Main {
                 } else if (parts.length >= 2 && parts[1].equalsIgnoreCase("biomes")) {
                     toggleBiomeDetailsExport();
                 } else {
-                    toggleExport();
+                    System.out.println("⚠ Usage: /export details  OR  /export biomes");
                 }
                 break;
 
@@ -257,9 +253,6 @@ public class Main {
             stepCounter++;
 
             // Export data if enabled
-            if (exportingData) {
-                exportStepData();
-            }
             if (exportEntityDetails) {
                 exportEntityDetailsData();
             }
@@ -297,8 +290,11 @@ public class Main {
             renderWorld();
 
             // Export data if enabled
-            if (exportingData) {
-                exportStepData();
+            if (exportEntityDetails) {
+                exportEntityDetailsData();
+            }
+            if (exportBiomeDetails) {
+                exportBiomeDetailsData();
             }
 
             // Sleep for tickspeed
@@ -402,10 +398,9 @@ public class Main {
 
         System.out.println("╠═══════════════════════════════════════════════════════════╣");
         System.out.println(
-                "║ Data Export:       " + String.format("%-37s", exportingData ? "ENABLED" : "DISABLED") + "║");
-        if (exportingData) {
-            System.out.println("║ Export File:       " + String.format("%-37s", exportFileName) + "║");
-        }
+                "║ Entity Export:     " + String.format("%-37s", exportEntityDetails ? "ENABLED" : "DISABLED") + "║");
+        System.out.println(
+                "║ Biome Export:      " + String.format("%-37s", exportBiomeDetails ? "ENABLED" : "DISABLED") + "║");
         System.out.println("╚═══════════════════════════════════════════════════════════╝");
     }
 
@@ -433,27 +428,6 @@ public class Main {
             result.append(String.format("%-" + width + "s", text.substring(i, endIndex)));
         }
         return result.toString();
-    }
-
-    private void toggleExport() {
-        exportingData = !exportingData;
-
-        if (exportingData) {
-            exportFileName = "biome_counts_" + System.currentTimeMillis() + ".csv";
-            csvData = new StringBuilder();
-            csvData.append("Step,GRASS,MOUNTAIN,FOREST,DESERT\\n");
-            System.out.println("✓ Data export ENABLED. File: " + exportFileName);
-        } else {
-            // Save CSV data
-            if (csvData.length() > 0) {
-                try (FileWriter writer = new FileWriter(exportFileName)) {
-                    writer.write(csvData.toString());
-                    System.out.println("✓ Data export DISABLED. Data saved to: " + exportFileName);
-                } catch (IOException e) {
-                    System.out.println("⚠ Failed to save CSV data: " + e.getMessage());
-                }
-            }
-        }
     }
 
     private void toggleEntityDetailsExport() {
@@ -548,16 +522,6 @@ public class Main {
         }
     }
 
-    private void exportStepData() {
-        Map<Type, Integer> counts = world.countEntitiesInAllBiomes();
-        csvData.append(String.format("%d,%d,%d,%d,%d\n",
-                stepCounter,
-                counts.getOrDefault(Type.GRASS, 0),
-                counts.getOrDefault(Type.MOUNTAIN, 0),
-                counts.getOrDefault(Type.FOREST, 0),
-                counts.getOrDefault(Type.DESERT, 0)));
-    }
-
     private void clearScreen() {
         // ANSI escape code to clear screen
         System.out.print("\033[H\033[2J");
@@ -598,16 +562,6 @@ public class Main {
     }
 
     private void cleanup() {
-        // Save any pending CSV data
-        if (exportingData && csvData.length() > 0) {
-            try (FileWriter writer = new FileWriter(exportFileName)) {
-                writer.write(csvData.toString());
-                System.out.println("✓ CSV data saved to: " + exportFileName);
-            } catch (IOException e) {
-                System.out.println("⚠ Failed to save CSV data: " + e.getMessage());
-            }
-        }
-
         scanner.close();
     }
 }

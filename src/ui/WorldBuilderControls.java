@@ -185,12 +185,12 @@ public class WorldBuilderControls {
         HBox toolButtonsRow1 = new HBox(10);
         HBox toolButtonsRow2 = new HBox(10);
 
-        clearBtn = createButton("Clear All", AppStyles.DANGER_COLOR);
-        randomBtn = createButton("Random Fill", AppStyles.WARNING_COLOR);
-        saveBtn = createButton("Save", AppStyles.SUCCESS_COLOR);
-        loadBtn = createButton("Load", AppStyles.INFO_COLOR);
-        exportSeedBtn = createButton("Export Seed", AppStyles.SECONDARY_COLOR);
-        importSeedBtn = createButton("Import Seed", AppStyles.PRIMARY_COLOR);
+        clearBtn = WidgetFactory.createButton("Clear All", AppStyles.DANGER_COLOR, 90);
+        randomBtn = WidgetFactory.createButton("Random Fill", AppStyles.WARNING_COLOR, 90);
+        saveBtn = WidgetFactory.createButton("Save", AppStyles.SUCCESS_COLOR, 90);
+        loadBtn = WidgetFactory.createButton("Load", AppStyles.INFO_COLOR, 90);
+        exportSeedBtn = WidgetFactory.createButton("Export Seed", AppStyles.SECONDARY_COLOR, 90);
+        importSeedBtn = WidgetFactory.createButton("Import Seed", AppStyles.PRIMARY_COLOR, 90);
 
         exportSeedBtn.setTooltip(new Tooltip("Generate a seed that will recreate this exact terrain"));
         importSeedBtn.setTooltip(new Tooltip("Import a world from a seed string"));
@@ -203,12 +203,6 @@ public class WorldBuilderControls {
     private void createSeedSection() {
         seedLabel = new Label("Seed: calculating...");
         seedLabel.setStyle(AppStyles.getLabelStyle() + " -fx-font-family: 'Consolas', monospace;");
-    }
-
-    private Button createButton(String text, String color) {
-        Button button = new Button(text);
-        button.setStyle(AppStyles.getButtonStyle(color) + " -fx-min-width: 90;");
-        return button;
     }
 
     public VBox getContainer() {

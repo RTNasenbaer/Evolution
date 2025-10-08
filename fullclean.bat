@@ -1,5 +1,8 @@
 @echo off
 echo Performing full clean...
-del /s /q *.class 2>nul
-del /q *.jar gui_batch_results_*.csv batch_results_*.csv designed_world_*.dat entity_details_*.csv biome_details_*.csv 2>nul
-echo Full clean completed successfully
+if exist build rmdir /s /q build 2>nul
+del /q *.jar 2>nul
+echo Moving stray CSV files to data folder...
+if not exist data mkdir data
+for %%f in (*.csv) do move "%%f" "data\" 2>nul
+echo ✓ Full clean completed successfully

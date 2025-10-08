@@ -8,16 +8,18 @@ The Evolution simulation creates a 100x100 grid world populated with different b
 
 ## 📚 Documentation
 
-This README provides a quick overview. For detailed information, please see:
+### Essential Guides
 
-- **[Cross-Platform Setup Guide](docs/CROSS_PLATFORM.md)** - Windows, macOS, and Linux installation
-- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Installation, first steps, and quick start
-- **[User Interface Guide](docs/UI_GUIDE.md)** - Complete guide to terminal, GUI, and World Builder interfaces
-- **[Architecture Documentation](docs/ARCHITECTURE.md)** - Technical details, class structure, and system design
-- **[Seed System Guide](docs/SEED_SYSTEM.md)** - World generation, seed formats, and import/export
-- **[Data Analysis Guide](docs/DATA_ANALYSIS.md)** - CSV export, batch simulation, and analysis techniques
-- **[Balance Adjustments](docs/BALANCE_ADJUSTMENTS.md)** - Simulation balance tuning for trait analysis
-- **[Balance Testing Guide](docs/BALANCE_TEST.md)** - Step-by-step guide to verify simulation balance
+- **[Getting Started](docs/GETTING_STARTED.md)** - Installation, compilation, and first steps
+- **[Cross-Platform Setup](docs/CROSS_PLATFORM.md)** - Windows, macOS, and Linux instructions
+- **[User Interface Guide](docs/UI_GUIDE.md)** - Terminal, GUI, and World Builder interfaces
+
+### Advanced Topics
+
+- **[Data Analysis](docs/ANALYSIS.md)** - Python scripts, visualization, and statistics
+- **[Seed System](docs/SEED_SYSTEM.md)** - World generation and reproducibility
+- **[Architecture](docs/ARCHITECTURE.md)** - Technical implementation details
+- **[Balance Adjustments](docs/BALANCE_ADJUSTMENTS.md)** - Simulation tuning reference
 
 ## ✨ Key Features
 
@@ -41,6 +43,35 @@ This README provides a quick overview. For detailed information, please see:
 - **Batch Simulation** - Automated multi-run experiments
 - **Real-time Charts** - Population dynamics visualization
 - **Statistics** - Comprehensive entity and biome statistics
+
+## 📁 Project Structure
+
+```
+Evolution/
+├── src/                    # Java source code
+│   ├── Main.java          # Terminal interface entry point
+│   ├── MainApp.java       # GUI interface entry point
+│   ├── WorldBuilder.java  # World Builder entry point
+│   ├── BatchSimulation.java  # Batch simulation engine
+│   ├── entities/          # Entity logic and traits
+│   ├── world/             # World, tiles, biomes, and seeds
+│   ├── ui/                # GUI components and displays
+│   └── export/            # CSV export utilities
+├── build/                  # Compiled .class files (auto-generated)
+├── data/                   # CSV exports and simulation data
+├── docs/                   # Documentation
+├── analysis/               # Python analysis scripts
+├── lib/                    # External libraries (JavaFX, Gson)
+├── examples/               # Example seed files
+└── [build scripts]         # compile.bat/sh, clean.bat/sh, etc.
+```
+
+**Key Points:**
+
+- Source code in `src/` with proper package structure
+- Compiled files automatically go to `build/` directory
+- All CSV exports save to `data/` directory
+- Clean separation between source, build artifacts, and data
 
 ## 🚀 Quick Start
 
@@ -83,21 +114,27 @@ compile.bat      # Compile first
 **Command Line (Windows)**:
 
 ```cmd
+# Compile first
+.\compile.bat
+
 # Terminal mode
-java -cp ".;lib/gson-2.10.1.jar" Main
+java -cp "build;lib/gson-2.10.1.jar" Main
 
 # GUI mode
-java -cp ".;lib/javafx/lib/*;lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media MainApp
+java -cp "build;lib/javafx/lib/*;lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media MainApp
 
 # World Builder
-java -cp ".;lib/javafx/lib/*;lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media WorldBuilder
+java -cp "build;lib/javafx/lib/*;lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media WorldBuilder
 ```
 
 **Command Line (macOS/Linux)**:
 
 ```bash
+# Compile first
+./compile.sh
+
 # Terminal mode
-java -cp ".:lib/gson-2.10.1.jar" Main
+java -cp "build:lib/gson-2.10.1.jar" Main
 
 # GUI mode
 java -cp ".:lib/javafx/lib/*:lib/gson-2.10.1.jar" --module-path "lib/javafx/lib" --add-modules javafx.controls,javafx.fxml,javafx.media MainApp
@@ -195,7 +232,45 @@ For analysis techniques and experiment designs, see **[Data Analysis Guide](docs
 - **Configurable Parameters**: Adjustable world size, energy systems, and reproduction thresholds
 - **Multiple Interfaces**: Both terminal and GUI support for different use cases
 
-## 📈 Analysis Possibilities
+## 📈 Analysis & Visualization
+
+The simulation includes comprehensive **Python analysis scripts** for beautiful, publication-quality visualizations:
+
+### Quick Start
+
+```bash
+cd analysis
+pip install -r requirements.txt
+python analyze_evolution.py        # Main analysis
+python batch_comparison.py         # Multi-seed comparison
+python statistical_analysis.py     # Advanced statistics
+```
+
+### Available Analyses
+
+**Main Analysis** (`analyze_evolution.py`):
+
+- 🎯 Trait-survival correlations with regression analysis
+- 🌍 Biome performance comparison
+- ⏱️ Temporal trait evolution
+- 🔗 Trait correlation matrix
+- 🗺️ Spatial distribution heatmaps
+
+**Batch Comparison** (`batch_comparison.py`):
+
+- 🌱 Seed performance ranking
+- 🧬 Successful trait pattern identification
+- 🌎 Biome impact on survival
+- 📊 Extinction vs survival rates
+
+**Statistical Analysis** (`statistical_analysis.py`):
+
+- 📈 Hypothesis testing (Pearson, Spearman, ANOVA)
+- 🌲 Random Forest feature importance
+- 📉 Effect size calculations
+- 🔬 Multi-biome statistical comparison
+
+### Research Applications
 
 The simulation enables research into:
 
@@ -204,6 +279,9 @@ The simulation enables research into:
 - Resource distribution effects on survival
 - Spatial ecology and habitat preferences
 - Energy-based ecosystem modeling
+- Trait-survival relationship analysis
+
+**Data Sufficiency**: Current CSV exports are **100% sufficient** for comprehensive analysis. See `analysis/DATA_SUFFICIENCY_REPORT.md` for details.
 
 The simulation has been carefully balanced to support trait-based analysis. See **[Balance Adjustments](docs/BALANCE_ADJUSTMENTS.md)** for technical details on energy systems, trait ranges, and biome characteristics. For verification testing, see **[Balance Testing Guide](docs/BALANCE_TEST.md)**.
 

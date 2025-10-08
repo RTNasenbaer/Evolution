@@ -263,22 +263,13 @@ public class Entity {
             eat(currentTile, tickspeed, gridSize);
         }
 
-        System.out.println("Entity at (" + this.x + ", " + this.y + ") has " + String.format("%.1f", this.energy)
-                + " energy, age " + age + ".");
-
         // Check for reproduction
         if (this.energy >= reproductionThreshold) {
-            System.out.println("Entity at (" + this.x + ", " + this.y + ") is reproducing.");
             reproduce(world);
         }
 
         // Check if the entity is still alive
         if (!isAlive()) {
-            if (age >= maxLifespan) {
-                System.out.println("Entity at (" + this.x + ", " + this.y + ") has died of old age.");
-            } else {
-                System.out.println("Entity at (" + this.x + ", " + this.y + ") has died of starvation.");
-            }
             world.removeEntity(this);
         }
     }

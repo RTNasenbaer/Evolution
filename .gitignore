@@ -1,9 +1,40 @@
-### IntelliJ IDEA ###
+# ==============================================================================
+# Evolution Simulation Project - Git Ignore Configuration
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Java Build Artifacts
+# ------------------------------------------------------------------------------
+build/
+*.class
+*.jar
+!lib/**/*.jar
+!lib/*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# ------------------------------------------------------------------------------
+# IDE: IntelliJ IDEA
+# ------------------------------------------------------------------------------
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf/
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
+.idea/mavenHomeManager.xml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### Eclipse ###
+# ------------------------------------------------------------------------------
+# IDE: Eclipse
+# ------------------------------------------------------------------------------
 .apt_generated
 .classpath
 .factorypath
@@ -14,29 +45,174 @@ out/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+.metadata
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
 
-### NetBeans ###
+# ------------------------------------------------------------------------------
+# IDE: NetBeans
+# ------------------------------------------------------------------------------
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# ------------------------------------------------------------------------------
+# IDE: VS Code
+# ------------------------------------------------------------------------------
 .vscode/
+*.code-workspace
 
-### Mac OS ###
+# ------------------------------------------------------------------------------
+# Operating System Files
+# ------------------------------------------------------------------------------
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
 
-### Build artifacts ###
-build/
-*.class
-*.jar
-!lib/*.jar
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
 
-### Data files ###
+# Linux
+*~
+
+# ------------------------------------------------------------------------------
+# Simulation Data & Exports
+# ------------------------------------------------------------------------------
 data/*.csv
 data/*.dat
+data/*.txt
+data/*.json
+!data/README.md
+!data/.gitkeep
 
-### Logs ###
+# ------------------------------------------------------------------------------
+# Analysis Output
+# ------------------------------------------------------------------------------
+analysis/output/
+analysis/**/*.png
+analysis/**/*.pdf
+analysis/**/*.html
+analysis/.ipynb_checkpoints/
+analysis/**/.ipynb_checkpoints/
+analysis/__pycache__/
+analysis/**/__pycache__/
+analysis/*.pyc
+analysis/**/*.pyc
+
+# ------------------------------------------------------------------------------
+# Python Environment & Cache
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+downloads/
+.eggs/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+*.cover
 *.log
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+conda-env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# ------------------------------------------------------------------------------
+# Package Managers
+# ------------------------------------------------------------------------------
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Gradle
+.gradle
+**/build/
+!src/**/build/
+
+# ------------------------------------------------------------------------------
+# Logs & Temporary Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ------------------------------------------------------------------------------
+# Archives & Backups
+# ------------------------------------------------------------------------------
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*_backup.*
+*.backup
+
+# ------------------------------------------------------------------------------
+# Application Specific
+# ------------------------------------------------------------------------------
+# Custom seed files (keep examples)
+# *.seed
+# !examples/*.seed
+
+# Manifest files (if generated)
+# MANIFEST.MF
+
+# Custom output directories
+results/
+experiments/
+simulations/
+
+# ------------------------------------------------------------------------------
+# Security & Credentials
+# ------------------------------------------------------------------------------
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.json
+.env
+.env.local
+
+# ==============================================================================
+# End of .gitignore
+# ==============================================================================

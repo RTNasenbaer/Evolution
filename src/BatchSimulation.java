@@ -1,7 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -25,22 +24,18 @@ public class BatchSimulation {
         private int stepsRun;
         private long executionTime;
         private Map<Type, Integer> finalBiomeDistribution;
-        private double averageAge;
-        private double averageEnergy;
-        private Map<String, Double> averageTraits;
+        private List<Entity> finalEntities; // RAW DATA: All final entities for analysis
 
         public SimulationResult(long seed, int finalEntityCount, int maxEntityCount, int stepsRun,
                 long executionTime, Map<Type, Integer> finalBiomeDistribution,
-                double averageAge, double averageEnergy, Map<String, Double> averageTraits) {
+                List<Entity> finalEntities) {
             this.seed = seed;
             this.finalEntityCount = finalEntityCount;
             this.maxEntityCount = maxEntityCount;
             this.stepsRun = stepsRun;
             this.executionTime = executionTime;
             this.finalBiomeDistribution = finalBiomeDistribution;
-            this.averageAge = averageAge;
-            this.averageEnergy = averageEnergy;
-            this.averageTraits = averageTraits;
+            this.finalEntities = new ArrayList<>(finalEntities); // Copy for safety
         }
 
         // Getters
@@ -68,16 +63,8 @@ public class BatchSimulation {
             return finalBiomeDistribution;
         }
 
-        public double getAverageAge() {
-            return averageAge;
-        }
-
-        public double getAverageEnergy() {
-            return averageEnergy;
-        }
-
-        public Map<String, Double> getAverageTraits() {
-            return averageTraits;
+        public List<Entity> getFinalEntities() {
+            return finalEntities;
         }
     }
 
@@ -280,46 +267,12 @@ public class BatchSimulation {
 
         long executionTime = System.currentTimeMillis() - startTime;
 
-        // Calculate final statistics
+        // Collect final state (RAW DATA - no averages)
         Map<Type, Integer> biomeDistribution = world.countEntitiesInAllBiomes();
-        double averageAge = 0;
-        double averageEnergy = 0;
-        Map<String, Double> averageTraits = new HashMap<>();
-
-        if (!world.getEntities().isEmpty()) {
-            double totalAge = 0;
-            double totalEnergy = 0;
-            double totalSpeed = 0;
-            double totalMass = 0;
-            double totalEnergyEfficiency = 0;
-            double totalSightRange = 0;
-            double totalMetabolismRate = 0;
-            double totalReproductionThreshold = 0;
-
-            for (Entity entity : world.getEntities()) {
-                totalAge += entity.getAge();
-                totalEnergy += entity.getEnergy();
-                totalSpeed += entity.getSpeed();
-                totalMass += entity.getMass();
-                totalEnergyEfficiency += entity.getEnergyEfficiency();
-                totalSightRange += entity.getSightRange();
-                totalMetabolismRate += entity.getMetabolismRate();
-                totalReproductionThreshold += entity.getReproductionThreshold();
-            }
-
-            int entityCount = world.getEntities().size();
-            averageAge = totalAge / entityCount;
-            averageEnergy = totalEnergy / entityCount;
-            averageTraits.put("speed", totalSpeed / entityCount);
-            averageTraits.put("mass", totalMass / entityCount);
-            averageTraits.put("energyEfficiency", totalEnergyEfficiency / entityCount);
-            averageTraits.put("sightRange", totalSightRange / entityCount);
-            averageTraits.put("metabolismRate", totalMetabolismRate / entityCount);
-            averageTraits.put("reproductionThreshold", totalReproductionThreshold / entityCount);
-        }
+        List<Entity> finalEntities = new ArrayList<>(world.getEntities());
 
         return new SimulationResult(seed, world.getEntities().size(), maxEntityCount, stepsRun,
-                executionTime, biomeDistribution, averageAge, averageEnergy, averageTraits);
+                executionTime, biomeDistribution, finalEntities);
     }
 
     public void stopBatch() {
@@ -341,49 +294,65 @@ public class BatchSimulation {
         }
     }
 
+    /**
+     * Export batch simulation results (RAW DATA - final entity states).
+     * Format: One row per entity with Seed, RunMetadata, and all entity traits.
+     * All analysis and aggregation should be done in Python scripts.
+     * 
+     * @param results  List of simulation results with raw final entity data
+     * @param fileName Output CSV filename
+     */
     private void exportResults(List<SimulationResult> results, String fileName) {
-        StringBuilder csvBuilder = new StringBuilder();
-
-        // Write header
-        csvBuilder.append("Seed,FinalEntityCount,MaxEntityCount,StepsRun,ExecutionTime(ms),AverageAge,AverageEnergy");
-        csvBuilder.append(
-                ",AvgSpeed,AvgMass,AvgEnergyEfficiency,AvgSightRange,AvgMetabolismRate,AvgReproductionThreshold");
-        for (Type type : Type.values()) {
-            csvBuilder.append(",").append(type.name()).append("Count");
-        }
-        csvBuilder.append("\n");
-
-        // Write data using StringBuilder for better performance
-        for (SimulationResult result : results) {
-            csvBuilder.append(result.getSeed()).append(",")
-                    .append(result.getFinalEntityCount()).append(",")
-                    .append(result.getMaxEntityCount()).append(",")
-                    .append(result.getStepsRun()).append(",")
-                    .append(result.getExecutionTime()).append(",")
-                    .append(String.format("%.2f", result.getAverageAge())).append(",")
-                    .append(String.format("%.2f", result.getAverageEnergy())).append(",");
-
-            Map<String, Double> traits = result.getAverageTraits();
-            csvBuilder.append(String.format("%.3f", traits.getOrDefault("speed", 0.0))).append(",")
-                    .append(String.format("%.3f", traits.getOrDefault("mass", 0.0))).append(",")
-                    .append(String.format("%.3f", traits.getOrDefault("energyEfficiency", 0.0))).append(",")
-                    .append(String.format("%.3f", traits.getOrDefault("sightRange", 0.0))).append(",")
-                    .append(String.format("%.3f", traits.getOrDefault("metabolismRate", 0.0))).append(",")
-                    .append(String.format("%.3f", traits.getOrDefault("reproductionThreshold", 0.0))).append(",");
-
-            Map<Type, Integer> distribution = result.getFinalBiomeDistribution();
-            for (Type type : Type.values()) {
-                csvBuilder.append(distribution.getOrDefault(type, 0)).append(",");
-            }
-            csvBuilder.append("\n");
-        }
-
-        // Write all at once for better I/O performance
         try (FileWriter writer = new FileWriter(fileName)) {
-            writer.write(csvBuilder.toString());
-            System.out.println("Batch simulation results exported to: " + fileName);
+            // Write header for entity-level data
+            writer.write("Seed,FinalEntityCount,MaxEntityCount,StepsRun,ExecutionTime(ms),");
+            writer.write("EntityID,X,Y,Energy,Age,Speed,Mass,EnergyEfficiency,ReproductionThreshold,");
+            writer.write("SightRange,MetabolismRate,MaxLifespan,BiomeType\n");
+
+            // Write one row per entity in each simulation
+            for (SimulationResult result : results) {
+                long seed = result.getSeed();
+                int finalCount = result.getFinalEntityCount();
+                int maxCount = result.getMaxEntityCount();
+                int steps = result.getStepsRun();
+                long execTime = result.getExecutionTime();
+
+                // If no entities survived, write one summary row with null entity data
+                if (result.getFinalEntities().isEmpty()) {
+                    writer.write(String.format("%d,%d,%d,%d,%d,,,,,,,,,,,,,\n",
+                            seed, finalCount, maxCount, steps, execTime));
+                } else {
+                    // Write each entity as a row
+                    int entityId = 0;
+                    for (Entity entity : result.getFinalEntities()) {
+                        writer.write(
+                                String.format("%d,%d,%d,%d,%d,%d,%d,%d,%.2f,%d,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%d,%s\n",
+                                        seed,
+                                        finalCount,
+                                        maxCount,
+                                        steps,
+                                        execTime,
+                                        entityId++,
+                                        entity.getX(),
+                                        entity.getY(),
+                                        entity.getEnergy(),
+                                        entity.getAge(),
+                                        entity.getSpeed(),
+                                        entity.getMass(),
+                                        entity.getEnergyEfficiency(),
+                                        entity.getReproductionThreshold(),
+                                        entity.getSightRange(),
+                                        entity.getMetabolismRate(),
+                                        entity.getMaxLifespan(),
+                                        "UNKNOWN")); // BiomeType will be determined by Python from X,Y if needed
+                    }
+                }
+            }
+
+            System.out.println("Batch simulation raw entity data exported to: " + fileName);
         } catch (IOException e) {
             System.err.println("Failed to export results: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

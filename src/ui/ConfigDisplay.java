@@ -77,12 +77,12 @@ public class ConfigDisplay {
         VBox simControls = new VBox(8);
 
         // Create controls
-        runStepBtn = createButton("Run Step", AppStyles.INFO_COLOR);
-        runManyBtn = createButton("Run N Steps", AppStyles.INFO_COLOR);
-        stepsField = createTextField("Steps", 80);
-        stopBtn = createButton("Stop", AppStyles.DANGER_COLOR);
-        setTickspeedBtn = createButton("Set Tickspeed", AppStyles.SUCCESS_COLOR);
-        tickspeedField = createTextField("Tickspeed (ms)", 120);
+        runStepBtn = WidgetFactory.createButton("Run Step", AppStyles.INFO_COLOR);
+        runManyBtn = WidgetFactory.createButton("Run N Steps", AppStyles.INFO_COLOR);
+        stepsField = WidgetFactory.createTextField("Steps", 80);
+        stopBtn = WidgetFactory.createButton("Stop", AppStyles.DANGER_COLOR);
+        setTickspeedBtn = WidgetFactory.createButton("Set Tickspeed", AppStyles.SUCCESS_COLOR);
+        tickspeedField = WidgetFactory.createTextField("Tickspeed (ms)", 120);
 
         HBox simRow1 = new HBox(8, runStepBtn, runManyBtn, stepsField);
         HBox simRow2 = new HBox(8, stopBtn, setTickspeedBtn, tickspeedField);
@@ -102,24 +102,24 @@ public class ConfigDisplay {
         // Spawn controls
         Label spawnLabel = new Label("Spawn Entity:");
         spawnLabel.setStyle(AppStyles.getLabelStyle());
-        spawnBtn = createButton("Spawn Entity", AppStyles.SUCCESS_COLOR);
-        spawnX = createTextField("X", 50);
-        spawnY = createTextField("Y", 50);
+        spawnBtn = WidgetFactory.createButton("Spawn Entity", AppStyles.SUCCESS_COLOR);
+        spawnX = WidgetFactory.createTextField("X", 50);
+        spawnY = WidgetFactory.createTextField("Y", 50);
         HBox spawnRow = new HBox(8, spawnBtn, spawnX, spawnY);
 
         // Move controls with improved interface
         Label moveLabel = new Label("Move Entity:");
         moveLabel.setStyle(AppStyles.getLabelStyle());
 
-        selectEntityBtn = createButton("Select Entity", AppStyles.INFO_COLOR);
-        moveSelectedBtn = createButton("Move Selected", AppStyles.WARNING_COLOR);
+        selectEntityBtn = WidgetFactory.createButton("Select Entity", AppStyles.INFO_COLOR);
+        moveSelectedBtn = WidgetFactory.createButton("Move Selected", AppStyles.WARNING_COLOR);
         moveSelectedBtn.setDisable(true); // Disabled until entity is selected
 
         selectedEntityLabel = new Label("No entity selected");
         selectedEntityLabel.setStyle(AppStyles.getLabelStyle() + " -fx-text-fill: #7f8c8d;");
 
-        moveX = createTextField("Target X", 60);
-        moveY = createTextField("Target Y", 60);
+        moveX = WidgetFactory.createTextField("Target X", 60);
+        moveY = WidgetFactory.createTextField("Target Y", 60);
 
         HBox moveRow1 = new HBox(8, selectEntityBtn, selectedEntityLabel);
         HBox moveRow2 = new HBox(8, moveSelectedBtn, new Label("To:"), moveX, moveY);
@@ -136,14 +136,14 @@ public class ConfigDisplay {
 
         VBox analysisControls = new VBox(8);
 
-        inspectBtn = createButton("Inspect Entity", AppStyles.SECONDARY_COLOR);
-        statsBtn = createButton("Show Stats", AppStyles.SECONDARY_COLOR);
-        batchBtn = createButton("Run Batch", AppStyles.PRIMARY_COLOR);
-        batchRunsField = createTextField("Runs", 70);
-        batchStepsField = createTextField("Steps", 70);
+        inspectBtn = WidgetFactory.createButton("Inspect Entity", AppStyles.SECONDARY_COLOR);
+        statsBtn = WidgetFactory.createButton("Show Stats", AppStyles.SECONDARY_COLOR);
+        batchBtn = WidgetFactory.createButton("Run Batch", AppStyles.PRIMARY_COLOR);
+        batchRunsField = WidgetFactory.createTextField("Runs", 70);
+        batchStepsField = WidgetFactory.createTextField("Steps", 70);
 
-        exportEntityDetailsBtn = createButton("Export Entity Details", AppStyles.WARNING_COLOR);
-        exportBiomeDetailsBtn = createButton("Export Biome Details", AppStyles.WARNING_COLOR);
+        exportEntityDetailsBtn = WidgetFactory.createButton("Export Entity Details", AppStyles.WARNING_COLOR);
+        exportBiomeDetailsBtn = WidgetFactory.createButton("Export Biome Details", AppStyles.WARNING_COLOR);
 
         HBox analysisRow1 = new HBox(8, inspectBtn, statsBtn);
         HBox analysisRow2 = new HBox(8, batchBtn, batchRunsField, batchStepsField);
@@ -157,23 +157,6 @@ public class ConfigDisplay {
     private void createSeedSection() {
         seedLabel = new Label("Seed: calculating...");
         seedLabel.setStyle(AppStyles.getLabelStyle() + " -fx-font-family: 'Consolas', monospace;");
-    }
-
-    private Button createButton(String text, String color) {
-        Button button = new Button(text);
-        button.setStyle(AppStyles.getButtonStyle(color));
-        button.setOnMouseEntered(e -> button.setStyle(button.getStyle() + "-fx-scale-x: 1.05; -fx-scale-y: 1.05;"));
-        button.setOnMouseExited(
-                e -> button.setStyle(button.getStyle().replace("-fx-scale-x: 1.05; -fx-scale-y: 1.05;", "")));
-        return button;
-    }
-
-    private TextField createTextField(String prompt, int width) {
-        TextField field = new TextField();
-        field.setPromptText(prompt);
-        field.setPrefWidth(width);
-        field.setStyle(AppStyles.getTextFieldStyle());
-        return field;
     }
 
     public VBox getContainer() {
