@@ -1,3 +1,0 @@
-Analyse der Überlebensfähigkeit von Organismen durch Variation spezifischer Merkmale unter unterschiedlichen räumlichen Bedingungen mittels zellulärer Automaten.
-
-Analysis of the survival ability of organisms by varying specific traits under different spatial conditions using cellular automata.

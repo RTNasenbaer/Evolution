@@ -1,0 +1,23 @@
+Ein zellulärer Automat ist wie bereits oben erwähnt ein diskretes, räumlich strukturiertes Modell, welches durch folgende Größen bzw. Eigenschaften bestimmt wird. Als Erstes gilt, dass dieser diskrete Zeitschritte verwendet.
+t_0→t_1→t_2→t_3→t_4→t_5→⋯
+Der ZA besteht außerdem aus einem Feld aneinander gereihter Zellen. Zellen sind hierbei meist quadratisch, manchmal aber auch hexagonal, dreieckig oder würfelförmig. Das Feld, in dem diese sich befinden, ist meist ein- oder zweidimensional, kann jedoch auf beliebig viele Dimensionen erweitert werden. Ich werde mich hier jedoch auf ein- bzw. zweidimensionale zelluläre Automaten beschränken. Für Mehrdimensionale sollte dies jedoch analog geschehen.
+Bei einem eindimensionalen Feld Abbildung 1 besteht dieses aus nur einer Reihe an n Zellen. 
+x_0→x_1→x_2→⋯→x_n
+Bei einem zweidimensionalen Feld Abbildung 2 entsteht ein Raster oder Gitter aus m×n Zellen.
+x_ij    für   i=1,⋯,m   und   j=1,⋯,n
+Des Weiteren nimmt jede der Zellen im ZA zu jedem Zeitpunkt einen Zustand aus einer endlichen Zustandsmenge Q an, die aus allen vom Nutzer definierten Zuständen besteht.
+In Abbildung 4 und Abbildung 3 werden die Zellen zum Zeitpunkt t_0 gezeigt. Diese besitzen alle einen zufällig zugeordneten Zustand, der hier durch Farben simuliert wird. 
+Ein Zeitschritt t_k wird nun so definiert, dass dieser dann vollendet ist, wenn alle Zustände der Zellen einmal aktualisiert wurden. Der neue Zustand einer Zelle zum Zeitpunkt t_(k+1) entsteht immer aus den Zuständen der Zelle selbst und den in seiner Nachbarschaft N liegenden Zellen zum vorherigen Zeitpunkt t_k.
+
+Damit dies funktioniert, muss jedoch auch die Nachbarschaft N festgelegt werden. Diese besteht aus der Zelle selbst sowie umliegenden Zellen. Welche genau dort mit hineinzählen entscheiden besondere Nachbarschaftsregeln. Im eindimensionalen Feld gilt die sog. z-Nachbarschaft, wobei z eine natürliche Zahl ist, die angibt wie viele Zellen jeweils rechts und links zusätzlich zur betrachteten Zelle x_i zur Nachbarschaft gehören. 
+Im zweidimensionalen Feld gibt es deutlich mehr Möglichkeiten, Nachbarschaften zu beschreiben. Die bekanntesten sind die Von-Neumann-Nachbarschaft in Abbildung 11 und die Moore-Nachbarschaft in Abbildung 10. Bei Von-Neumann gehören zusätzlich zur Zelle x_ij auch die angrenzenden vier Zellen zur Nachbarschaft. Bei Moore sogar die angrenzenden acht Zellen. Und auch hier gibt es die z-Nachbarschaft Abbildung 12, bei dem nun jedoch alle Zellen im Umkreis von z um die Zelle x_ij zur Nachbarschaft gehören. Analog kann man zusätzlich auch die Von-Neumann- und Moore-Nachbarschaft um den Faktor z erweitern Abbildung 8-9. 
+Als Letztes gilt zu klären, was geschieht, wenn Zellen, die zur Nachbarschaft N einer andern gehören, nicht mehr vom vorher definierten Feld dargestellt werden. Es müssen sog. Randbedingungen definiert werden. Hierbei gibt es nur drei Möglichkeiten.
+Abgeschlossene Randbedingungen Abbildung 13 meinen, dass der Zustand von Zellen, deren Nachbarschaft N nicht mehr ganz im Feld enthalten sind, unverändert bleibt. Es entsteht ein unveränderlicher Rahmen um das Feld.
+ 
+Abbildung 13: abgeschlossen
+Eine andere Möglichkeit sind periodische Randbedingungen Abbildung 14, bei ihnen wird ein unendliches Feld simuliert, da eine Nachbarschaft N, die außerhalb eines Randes liegt, am gegenüberliegenden Rand ergänzt wird. 
+ 
+Abbildung 14: periodisch
+Die letzte Möglichkeit ist es, die Dirichlet-Randbedingungen Abbildung 15 anzuwenden. Hierbei werden für alle Zellen außerhalb des Feldes feste Werte festgelegt, die unveränderlich sind. Dieser entspricht meistens einem Null-Wert, da sich dies anbietet, um das Feld dahingehend zu begrenzen. 
+ 
+Abbildung 15: Dirichlet

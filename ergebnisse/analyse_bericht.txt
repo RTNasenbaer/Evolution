@@ -1,0 +1,288 @@
+================================================================================
+ANALYSE DER EVOLUTION-SIMULATION
+================================================================================
+
+
+================================================================================
+KATEGORIE: SAME
+================================================================================
+
+Gesamtanzahl lebendiger Organismen: 12420
+
+
+GEBIRGE:
+  Anzahl: 1627
+  Anpassung:  Ø 1.195 (±0.522)
+  Effizienz:  Ø 1.912 (±0.169)
+  Mobilität:  Ø 1.316 (±0.503)
+  Energie:    Ø 158.301 (±55.213)
+  Alter:      Ø 383.822 (±429.530)
+
+GRASLAND:
+  Anzahl: 1314
+  Anpassung:  Ø 1.183 (±0.526)
+  Effizienz:  Ø 1.807 (±0.275)
+  Mobilität:  Ø 1.265 (±0.507)
+  Energie:    Ø 191.475 (±23.234)
+  Alter:      Ø 393.836 (±440.043)
+
+OZEAN:
+  Anzahl: 1537
+  Anpassung:  Ø 1.174 (±0.526)
+  Effizienz:  Ø 1.837 (±0.251)
+  Mobilität:  Ø 1.295 (±0.507)
+  Energie:    Ø 180.056 (±39.337)
+  Alter:      Ø 388.984 (±439.998)
+
+SUMPF:
+  Anzahl: 1642
+  Anpassung:  Ø 1.191 (±0.527)
+  Effizienz:  Ø 1.824 (±0.263)
+  Mobilität:  Ø 1.282 (±0.500)
+  Energie:    Ø 182.621 (±35.813)
+  Alter:      Ø 395.723 (±444.577)
+
+TUNDRA:
+  Anzahl: 1596
+  Anpassung:  Ø 1.232 (±0.538)
+  Effizienz:  Ø 1.914 (±0.189)
+  Mobilität:  Ø 1.443 (±0.479)
+  Energie:    Ø 83.320 (±51.104)
+  Alter:      Ø 242.716 (±331.002)
+
+VULKAN:
+  Anzahl: 1548
+  Anpassung:  Ø 1.242 (±0.519)
+  Effizienz:  Ø 1.836 (±0.245)
+  Mobilität:  Ø 1.401 (±0.494)
+  Energie:    Ø 60.795 (±40.534)
+  Alter:      Ø 66.111 (±185.764)
+
+WALD:
+  Anzahl: 1544
+  Anpassung:  Ø 1.170 (±0.507)
+  Effizienz:  Ø 1.827 (±0.260)
+  Mobilität:  Ø 1.288 (±0.500)
+  Energie:    Ø 192.408 (±22.305)
+  Alter:      Ø 395.275 (±448.288)
+
+WÜSTE:
+  Anzahl: 1612
+  Anpassung:  Ø 1.258 (±0.552)
+  Effizienz:  Ø 1.865 (±0.233)
+  Mobilität:  Ø 1.423 (±0.485)
+  Energie:    Ø 60.847 (±41.509)
+  Alter:      Ø 80.477 (±185.818)
+
+================================================================================
+KATEGORIE: SEED
+================================================================================
+
+Gesamtanzahl lebendiger Organismen: 12431
+
+
+GEBIRGE:
+  Anzahl: 1492
+  Anpassung:  Ø 1.290 (±0.522)
+  Effizienz:  Ø 1.904 (±0.176)
+  Mobilität:  Ø 1.272 (±0.507)
+  Energie:    Ø 159.027 (±55.266)
+  Alter:      Ø 362.058 (±406.266)
+
+GRASLAND:
+  Anzahl: 1545
+  Anpassung:  Ø 1.261 (±0.508)
+  Effizienz:  Ø 1.809 (±0.276)
+  Mobilität:  Ø 1.285 (±0.508)
+  Energie:    Ø 190.461 (±24.968)
+  Alter:      Ø 403.074 (±457.874)
+
+OZEAN:
+  Anzahl: 1540
+  Anpassung:  Ø 1.271 (±0.519)
+  Effizienz:  Ø 1.830 (±0.248)
+  Mobilität:  Ø 1.250 (±0.495)
+  Energie:    Ø 183.534 (±35.054)
+  Alter:      Ø 415.206 (±441.615)
+
+SUMPF:
+  Anzahl: 1563
+  Anpassung:  Ø 1.255 (±0.523)
+  Effizienz:  Ø 1.823 (±0.252)
+  Mobilität:  Ø 1.287 (±0.513)
+  Energie:    Ø 184.268 (±34.340)
+  Alter:      Ø 395.736 (±431.768)
+
+TUNDRA:
+  Anzahl: 1638
+  Anpassung:  Ø 1.287 (±0.527)
+  Effizienz:  Ø 1.924 (±0.177)
+  Mobilität:  Ø 1.440 (±0.478)
+  Energie:    Ø 83.910 (±52.357)
+  Alter:      Ø 254.134 (±324.206)
+
+VULKAN:
+  Anzahl: 1534
+  Anpassung:  Ø 1.305 (±0.522)
+  Effizienz:  Ø 1.823 (±0.261)
+  Mobilität:  Ø 1.381 (±0.490)
+  Energie:    Ø 58.930 (±39.078)
+  Alter:      Ø 65.795 (±194.393)
+
+WALD:
+  Anzahl: 1517
+  Anpassung:  Ø 1.266 (±0.516)
+  Effizienz:  Ø 1.801 (±0.281)
+  Mobilität:  Ø 1.279 (±0.508)
+  Energie:    Ø 191.788 (±23.652)
+  Alter:      Ø 392.991 (±437.546)
+
+WÜSTE:
+  Anzahl: 1602
+  Anpassung:  Ø 1.371 (±0.523)
+  Effizienz:  Ø 1.848 (±0.248)
+  Mobilität:  Ø 1.407 (±0.491)
+  Energie:    Ø 62.979 (±44.614)
+  Alter:      Ø 97.843 (±224.643)
+
+================================================================================
+KATEGORIE: POPULATION
+================================================================================
+
+Gesamtanzahl lebendiger Organismen: 12434
+
+
+GEBIRGE:
+  Anzahl: 1627
+  Anpassung:  Ø 1.228 (±0.515)
+  Effizienz:  Ø 1.904 (±0.175)
+  Mobilität:  Ø 1.350 (±0.499)
+  Energie:    Ø 159.606 (±55.588)
+  Alter:      Ø 371.955 (±392.865)
+
+GRASLAND:
+  Anzahl: 1315
+  Anpassung:  Ø 1.208 (±0.512)
+  Effizienz:  Ø 1.827 (±0.261)
+  Mobilität:  Ø 1.340 (±0.503)
+  Energie:    Ø 191.872 (±22.940)
+  Alter:      Ø 403.333 (±443.778)
+
+OZEAN:
+  Anzahl: 1537
+  Anpassung:  Ø 1.200 (±0.511)
+  Effizienz:  Ø 1.841 (±0.241)
+  Mobilität:  Ø 1.339 (±0.497)
+  Energie:    Ø 181.022 (±37.399)
+  Alter:      Ø 393.916 (±426.082)
+
+SUMPF:
+  Anzahl: 1652
+  Anpassung:  Ø 1.201 (±0.508)
+  Effizienz:  Ø 1.840 (±0.250)
+  Mobilität:  Ø 1.345 (±0.500)
+  Energie:    Ø 185.237 (±32.997)
+  Alter:      Ø 389.074 (±423.060)
+
+TUNDRA:
+  Anzahl: 1598
+  Anpassung:  Ø 1.259 (±0.529)
+  Effizienz:  Ø 1.928 (±0.170)
+  Mobilität:  Ø 1.506 (±0.447)
+  Energie:    Ø 83.382 (±51.472)
+  Alter:      Ø 229.421 (±318.350)
+
+VULKAN:
+  Anzahl: 1548
+  Anpassung:  Ø 1.263 (±0.526)
+  Effizienz:  Ø 1.852 (±0.243)
+  Mobilität:  Ø 1.456 (±0.466)
+  Energie:    Ø 59.466 (±41.029)
+  Alter:      Ø 60.549 (±175.410)
+
+WALD:
+  Anzahl: 1546
+  Anpassung:  Ø 1.219 (±0.518)
+  Effizienz:  Ø 1.825 (±0.268)
+  Mobilität:  Ø 1.321 (±0.501)
+  Energie:    Ø 192.885 (±20.767)
+  Alter:      Ø 391.687 (±427.886)
+
+WÜSTE:
+  Anzahl: 1611
+  Anpassung:  Ø 1.277 (±0.537)
+  Effizienz:  Ø 1.867 (±0.233)
+  Mobilität:  Ø 1.450 (±0.463)
+  Energie:    Ø 60.509 (±41.348)
+  Alter:      Ø 94.621 (±218.686)
+
+================================================================================
+KATEGORIE: STEPS
+================================================================================
+
+Gesamtanzahl lebendiger Organismen: 12417
+
+
+GEBIRGE:
+  Anzahl: 1630
+  Anpassung:  Ø 1.007 (±0.452)
+  Effizienz:  Ø 1.901 (±0.179)
+  Mobilität:  Ø 1.228 (±0.470)
+  Energie:    Ø 150.256 (±58.897)
+  Alter:      Ø 299.268 (±320.053)
+
+GRASLAND:
+  Anzahl: 1310
+  Anpassung:  Ø 0.978 (±0.419)
+  Effizienz:  Ø 1.787 (±0.289)
+  Mobilität:  Ø 1.204 (±0.458)
+  Energie:    Ø 190.865 (±23.590)
+  Alter:      Ø 314.342 (±334.997)
+
+OZEAN:
+  Anzahl: 1533
+  Anpassung:  Ø 0.994 (±0.443)
+  Effizienz:  Ø 1.802 (±0.263)
+  Mobilität:  Ø 1.207 (±0.478)
+  Energie:    Ø 173.008 (±43.647)
+  Alter:      Ø 310.153 (±345.279)
+
+SUMPF:
+  Anzahl: 1644
+  Anpassung:  Ø 0.988 (±0.444)
+  Effizienz:  Ø 1.806 (±0.268)
+  Mobilität:  Ø 1.242 (±0.469)
+  Energie:    Ø 179.839 (±39.006)
+  Alter:      Ø 302.581 (±313.965)
+
+TUNDRA:
+  Anzahl: 1597
+  Anpassung:  Ø 1.007 (±0.458)
+  Effizienz:  Ø 1.904 (±0.199)
+  Mobilität:  Ø 1.328 (±0.479)
+  Energie:    Ø 74.695 (±47.332)
+  Alter:      Ø 172.063 (±234.474)
+
+VULKAN:
+  Anzahl: 1547
+  Anpassung:  Ø 0.997 (±0.448)
+  Effizienz:  Ø 1.833 (±0.252)
+  Mobilität:  Ø 1.294 (±0.478)
+  Energie:    Ø 60.897 (±39.139)
+  Alter:      Ø 51.449 (±145.147)
+
+WALD:
+  Anzahl: 1549
+  Anpassung:  Ø 0.987 (±0.433)
+  Effizienz:  Ø 1.748 (±0.321)
+  Mobilität:  Ø 1.182 (±0.481)
+  Energie:    Ø 190.914 (±24.136)
+  Alter:      Ø 300.190 (±316.151)
+
+WÜSTE:
+  Anzahl: 1607
+  Anpassung:  Ø 1.039 (±0.483)
+  Effizienz:  Ø 1.841 (±0.250)
+  Mobilität:  Ø 1.312 (±0.481)
+  Energie:    Ø 60.038 (±40.770)
+  Alter:      Ø 70.410 (±170.592)
